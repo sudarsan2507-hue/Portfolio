@@ -1,0 +1,385 @@
+export type Domain = 'research' | 'agents' | 'sensing' | 'products' | 'team';
+
+export interface DomainInfo {
+  id: Domain;
+  label: string;
+  short: string;
+  color: string;
+  blurb: string;
+}
+
+export const DOMAINS: DomainInfo[] = [
+  { id: 'research', label: 'Research', short: 'RES', color: '#a78bfa', blurb: 'Studies on retrieval, search and the security of code written by LLMs.' },
+  { id: 'agents', label: 'Agent Safety', short: 'SAFE', color: '#22d3ee', blurb: 'Tools that watch and limit what AI agents do.' },
+  { id: 'sensing', label: 'Sensing & Hardware', short: 'SENSE', color: '#fbbf24', blurb: 'ESP32 boards, Wi-Fi signals, satellites and microphones.' },
+  { id: 'products', label: 'Apps', short: 'APP', color: '#34d399', blurb: 'Full-stack apps, from the model to the interface.' },
+  { id: 'team', label: 'Team builds', short: 'TEAM', color: '#f472b6', blurb: 'Hackathon and team projects I contributed code to.' },
+];
+
+export const domainById = Object.fromEntries(DOMAINS.map((d) => [d.id, d])) as Record<Domain, DomainInfo>;
+
+export interface Metric {
+  value: string;
+  label: string;
+}
+
+export interface Project {
+  slug: string;
+  name: string;
+  repo: string;
+  domain: Domain;
+  /** One plain sentence: what it is. */
+  tagline: string;
+  /** How it works, in two or three sentences. */
+  description: string;
+  /** What I did. For solo projects this is omitted. */
+  role?: string;
+  stack: string[];
+  metrics?: Metric[];
+  live?: { label: string; url: string };
+  context?: string;
+  status?: string;
+  featured?: boolean;
+}
+
+const gh = (r: string) => `https://github.com/sudarsan2507-hue/${r}`;
+
+export const PROJECTS: Project[] = [
+  // ---------------- Research ----------------
+  {
+    slug: 'glass-armor', name: 'Glass Armor', repo: gh('GLASS-ARMOR'), domain: 'research', featured: true,
+    tagline: 'I tested whether LLMs can safely move code to post-quantum cryptography. Often they can’t.',
+    description:
+      'I built a benchmark of 20 Python programs with 77 flawed migrations that still pass every test, ran 400 migrations across 4 models, and wrote a security gate (Semgrep rules, AST dataflow and live probes). With the gate’s feedback, a capable model fixed flaws that test feedback never caught.',
+    stack: ['Python', 'liboqs', 'ML-KEM', 'ML-DSA', 'Semgrep', 'statsmodels'],
+    metrics: [
+      { value: '0/71', label: 'planted flaws caught by the tests' },
+      { value: '26/84', label: 'working AI migrations that were insecure' },
+      { value: '400', label: 'migrations measured' },
+    ],
+  },
+  {
+    slug: 'graderag', name: 'GradeRAG', repo: gh('GradeRAG'), domain: 'research', featured: true,
+    context: 'NLP research internship · NIT Trichy · 2026',
+    tagline: 'A RAG pipeline that remembers its wrong answers and avoids repeating them.',
+    description:
+      'Each wrong answer is labelled (retrieval or reasoning failure) and stored in a Mistake Knowledge Graph. For a new question, similar past mistakes are retrieved as warnings. I tested it on HotpotQA and TriviaQA with three models. The paper is under review, so only the results are public for now.',
+    stack: ['RAG', 'FAISS', 'MiniLM', 'Knowledge graphs', 'HotpotQA', 'TriviaQA'],
+    metrics: [
+      { value: '+29.5', label: 'points exact match, GPT-4o-mini on HotpotQA' },
+      { value: '87.5%', label: 'accuracy, up from 58.0%' },
+      { value: '5/6', label: 'model and dataset pairs improved' },
+    ],
+    live: { label: 'Explore the graph', url: 'https://sudarsan2507-hue.github.io/GradeRAG/mkg-explorer.html' },
+  },
+  {
+    slug: 'demosearch', name: 'DemoSearch', repo: gh('DemoSearch'), domain: 'research', featured: true,
+    tagline: 'A study of when telling a search agent about its failures actually helps.',
+    description:
+      'It began as Failure-Aware Graph Search and grew into experiments on synthetic graphs, 295 hard Sudoku puzzles, MetaQA, WebQSP and LLM code repair on MBPP+. I wrote the hypotheses down before each run. The main finding: a failure helps only when it comes with a reason.',
+    stack: ['Python', 'Graph search', 'BGE embeddings', 'Groq', 'SciPy'],
+    metrics: [
+      { value: '2.5-3.3×', label: 'more code repaired when the model is told why a test failed' },
+      { value: '5', label: 'task families tested' },
+    ],
+  },
+  {
+    slug: 'iaudit', name: 'iAudit', repo: gh('iAudit'), domain: 'research', featured: true,
+    tagline: 'A fairness audit of models that estimate age from brain MRI.',
+    description:
+      'I compared DeepBrainNet, a CNN on raw T1 MRI, with three simple models on brain-volume features, to see whether the errors for some groups come from the scanner or from the model. There is a demo site with 26 real cases.',
+    stack: ['TensorFlow', 'ANTsPyNet', 'XGBoost', 'statsmodels', 'nibabel'],
+    metrics: [
+      { value: '560', label: 'MRI scans in the full run' },
+      { value: '26', label: 'real cases in the demo' },
+    ],
+  },
+  {
+    slug: 'basesvm', name: 'BaseSVM', repo: gh('BaseSVM'), domain: 'research',
+    tagline: 'A linear support vector machine written from scratch, with no libraries.',
+    description: 'It trains with hinge loss and L2 regularization by sub-gradient descent and explains every weight update. On the included data it finds the pass/fail boundary at about 4.4 hours of study.',
+    stack: ['Python'],
+  },
+  {
+    slug: 'fea-sweep', name: 'Parametric FEA Sweep', repo: gh('parametric-fea-sweep'), domain: 'research', status: 'In progress',
+    tagline: 'Automated stress analysis of a cantilever beam, checked against beam theory.',
+    description: 'The plan: build the beam in FreeCAD, solve it with CalculiX, refine the mesh until results change by less than 1%, then sweep length, cross-section and load. The folder structure is in place; the model and scripts are next.',
+    stack: ['FreeCAD', 'CalculiX', 'Python'],
+  },
+
+  // ---------------- Agent safety ----------------
+  {
+    slug: 'choketap', name: 'Choketap', repo: gh('ChokeTap'), domain: 'agents', featured: true,
+    tagline: 'A checkpoint that every tool call from an AI agent must pass before it runs.',
+    description:
+      'It sits between a Gemma agent and its tools and checks three things: is the tool allowed, did the data come from an untrusted document, and does the action match what the user asked. Even when a prompt injection gets into the agent, it can’t send data anywhere the user didn’t name.',
+    stack: ['Python', 'Gemma', 'pydantic', 'SQLite', 'Docker sandbox'],
+    metrics: [
+      { value: '0.06 ms', label: 'to block a call outside the allowed scope' },
+      { value: '3', label: 'layers of checks' },
+    ],
+  },
+  {
+    slug: 'sentinelmind', name: 'SentinelMind', repo: gh('Sentinel_Mind'), domain: 'agents', featured: true,
+    tagline: 'A second AI that watches an agent while it runs and flags its mistakes.',
+    description:
+      'Every step gets a verdict (OK, warning or anomaly) with a short reason. It catches tools that don’t exist, repeated calls, drifting away from the goal and errors the agent ignored. Mistakes are saved and given back to the agent on its next run. You add it with one decorator.',
+    stack: ['Python', 'Flask-SocketIO', 'Groq', 'React'],
+    metrics: [{ value: '4', label: 'kinds of failure caught live' }],
+  },
+  {
+    slug: 'engram', name: 'Engram', repo: gh('Engram'), domain: 'agents', featured: true,
+    tagline: 'Offline memory for AI agents on edge devices that can’t be poisoned through sync.',
+    description:
+      'Each device answers from its own Qdrant Edge store with no network. When devices sync, a screening step checks where each memory came from and whether it conflicts, and only verified memories are ever searched. The demo runs six poisoning attacks and checks that each one is stopped.',
+    stack: ['Qdrant Edge', 'FastEmbed', 'PyNaCl', 'FastAPI', 'Docker'],
+    metrics: [{ value: '6/6', label: 'poisoning attacks stopped in the demo' }],
+  },
+  {
+    slug: 'webmcp-forge', name: 'WebMCP Forge', repo: gh('CockPit'), domain: 'agents',
+    context: 'WebMCP Challenge',
+    tagline: 'Generates WebMCP tools for a web app, then tests which ones are safe for an agent.',
+    description:
+      'It reads an app’s routes and writes the tools, then scans them for instructions hidden in descriptions, personal data sent to third parties, and tools marked read-only that actually change data. Generated tools run through a gate that blocks cross-origin requests.',
+    stack: ['Next.js 15', 'TypeScript', 'WebMCP', 'Tailwind'],
+    metrics: [{ value: '3', label: 'safety checks, static and live' }],
+  },
+
+  // ---------------- Sensing & hardware ----------------
+  {
+    slug: 'wisp', name: 'WISP', repo: gh('WISP'), domain: 'sensing', featured: true,
+    tagline: 'Detects a person falling from changes in Wi-Fi signals, using two ESP32 boards.',
+    description:
+      'It reads Wi-Fi Channel State Information, scores it with an Isolation Forest and a small state machine, and raises an alert on a collapse. The goal is under one false alarm per week in a real home, because a fall detector that cries wolf gets switched off.',
+    stack: ['ESP32', 'Wi-Fi CSI', 'Isolation Forest', 'SciPy', 'Flask'],
+    metrics: [
+      { value: '<1', label: 'false alarm per week (target)' },
+      { value: '~$15', label: 'of hardware' },
+    ],
+  },
+  {
+    slug: 'hydrofuse', name: 'HydroFuse', repo: gh('HydroFuse'), domain: 'sensing', featured: true,
+    tagline: 'Finds underground water-pipe leaks by combining ground sensors with satellite data.',
+    description:
+      'ESP32-S3 nodes measure soil moisture, vibration and magnetic field. Sentinel-1 and 2, SMAP, a DEM and MODIS add the view from orbit. Wet ground alone could be rain, so a leak is flagged only when there is wet ground, vibration in the leak band and no rain.',
+    stack: ['ESP32-S3', 'Google Earth Engine', 'XGBoost', 'SHAP', 'FastAPI', 'Folium'],
+    metrics: [{ value: '5', label: 'satellite data sources' }],
+  },
+  {
+    slug: 'syrinx', name: 'Syrinx', repo: gh('Syrinx'), domain: 'sensing', featured: true,
+    tagline: 'Controls music on a phone with sounds: shush to pause, whistle for louder.',
+    description:
+      'The laptop listens, detects when a sound starts, extracts MFCC features and classifies it with an SVM into six commands, then sends a media key to the phone. The link to the phone is swappable, so everything can be tested without hardware.',
+    stack: ['librosa', 'MFCC', 'SVM', 'Bluetooth HID', 'Arduino'],
+    metrics: [{ value: '6', label: 'sounds recognised' }],
+  },
+  {
+    slug: 'safesignal', name: 'SafeSignal', repo: gh('Safe-Signal'), domain: 'sensing', featured: true,
+    tagline: 'A web app that notices signs of distress and prepares an alert for people you trust.',
+    description:
+      'It watches for a hand signal, tension in your voice or sudden violent movement, all on the phone, with nothing uploaded. It writes the alert with your location and gives you 10 seconds to cancel. It never claims a message was sent when it can’t confirm it.',
+    stack: ['React 19', 'MediaPipe', 'Meyda', 'Web Audio', 'Vite'],
+    metrics: [{ value: '0', label: 'servers: everything runs on the device' }],
+    live: { label: 'Open the app', url: 'https://safe-signal-pi.vercel.app/' },
+  },
+
+  // ---------------- Apps ----------------
+  {
+    slug: 'datepilot', name: 'DatePilot', repo: gh('DatePilot'), domain: 'products', featured: true,
+    tagline: 'Plans a date for two people in Chennai, Coimbatore or Madurai.',
+    description:
+      'Each person enters preferences privately and the app shows only what they share. An open-weight model reads taste and explains the picks; plain Python enforces budget, opening hours, diet, travel time and the city. Routes and weather come from free APIs.',
+    stack: ['FastAPI', 'Gemma', 'React', 'OSRM', 'Open-Meteo'],
+    live: { label: 'Live demo', url: 'https://datepilot.onrender.com' },
+  },
+  {
+    slug: 'codeg', name: 'CoDeg', repo: gh('CoDeg'), domain: 'products', featured: true,
+    tagline: 'A two-player coding duel where faster code hits harder.',
+    description:
+      'Both players get the same problem. The first correct solution lands a hit; run time scales the damage and low memory use gives armour. Code runs in a locked-down Docker sandbox with no network.',
+    stack: ['Node.js', 'Socket.IO', 'React', 'Docker'],
+  },
+  {
+    slug: 'phantomvoice', name: 'Phantom Voice', repo: gh('PhantomVoice'), domain: 'products',
+    tagline: 'A voice assistant whose only job is making sure I don’t forget things.',
+    description: 'I say a task out loud once, from my laptop or phone. An LLM works out what I committed to and when, and a reminder loop pushes it to my phone in time.',
+    stack: ['FastAPI', 'LLMs', 'faster-whisper', 'SQLite', 'ntfy'],
+  },
+  {
+    slug: 'studentfrndly', name: 'StudentFrndly', repo: gh('Student-frndly'), domain: 'products',
+    tagline: 'Tracks how fast you are forgetting each skill and tells you what to revise today.',
+    description: 'Every skill fades on a half-life curve from the last time you practised it. Quick tests restore it, and a two-week forecast shows what will drop next. Includes Google sign-in and an admin view.',
+    stack: ['Express', 'SQLite', 'React', 'JWT', 'Google OAuth'],
+  },
+  {
+    slug: 'medsmart', name: 'Med-Smart', repo: gh('Med-Smart'), domain: 'products',
+    tagline: 'A medication and health app for elderly people, their caregivers and doctors.',
+    description: 'Doctors prescribe, elders log vitals, and readings outside safe ranges create alerts that n8n forwards by SMS, email or WhatsApp to the people linked to that elder.',
+    stack: ['Flutter', 'Riverpod', 'Firebase', 'n8n'],
+  },
+  {
+    slug: 'clas', name: 'CLAS', repo: gh('Personalised-Pedagogical-Assistant'), domain: 'products',
+    tagline: 'A classroom tool that checks whether students understood, not just whether they attended.',
+    description: 'Answers are scored in three stages: keyword coverage, a check for copied question text, then Llama 3.1 for real understanding and AI-written text. Teachers get a report with common misconceptions after each session. An earlier version lives in cognitive-attendance-system.',
+    stack: ['Streamlit', 'scikit-learn', 'Groq', 'Plotly'],
+  },
+  {
+    slug: 'smart-file-organizer', name: 'Smart File Organizer', repo: gh('smart-file-organizer'), domain: 'products',
+    tagline: 'Sorts the files in a folder by what they say, not just their extension.',
+    description: 'It reads PDFs and documents, classifies them with keywords and sentence embeddings, sends unsure ones to a Review folder, and learns when you move a file. FAISS search lets you find files by meaning. Nothing leaves the computer.',
+    stack: ['MiniLM', 'FAISS', 'watchdog', 'Ollama'],
+  },
+  {
+    slug: 'yt-knowledge', name: 'YT Knowledge Assistant', repo: gh('yt-knowledge-assistant'), domain: 'products',
+    tagline: 'Answers questions about a YouTube video from its transcript.',
+    description: 'It uses captions when they exist and Whisper when they don’t, writes a structured summary, and answers questions using only that video’s content.',
+    stack: ['FastAPI', 'Groq', 'Llama 3.3', 'FastEmbed'],
+  },
+  {
+    slug: 'rag-browser', name: 'rag-browser-ai', repo: gh('rag-browser-ai'), domain: 'products',
+    tagline: 'A RAG pipeline that searches the web itself before answering.',
+    description: 'A visible Playwright browser searches, reads the top pages, and stores cleaned chunks in ChromaDB. A local Llama answers from those chunks and cites its sources. The knowledge base grows with every run.',
+    stack: ['Playwright', 'ChromaDB', 'Ollama'],
+  },
+  {
+    slug: 'club-management', name: 'Club Management System', repo: gh('Club-Management-System'), domain: 'products',
+    tagline: 'A club manager for members, events, attendance and funds, in plain JavaScript.',
+    description: 'Built without frameworks: role-based login, member and event management, attendance, announcements and a fund tracker, all stored in the browser.',
+    stack: ['HTML', 'CSS', 'JavaScript'],
+  },
+  {
+    slug: 'cyber-glitch', name: 'Cyber//Glitch', repo: gh('Tundra-0727'), domain: 'products',
+    tagline: 'A cybersecurity-themed landing page with glitch effects and animated telemetry.',
+    description: 'A small React and Vite page with keyboard controls to start a scan, arm the glitch effect and reset.',
+    stack: ['React', 'TypeScript', 'Vite'],
+  },
+
+  // ---------------- Team builds (I contributed code) ----------------
+  {
+    slug: 'aegis', name: 'Aegis AI', repo: gh('Aegis'), domain: 'agents', featured: true,
+    context: 'ET AI Hackathon 2026 · team of 4',
+    tagline: 'Connects scam calls, money-mule accounts and fake currency into one case for the police.',
+    description:
+      'Our idea: these are three steps of the same criminal money trail. Four AI modules (scam-call NLP, a mule-account graph, counterfeit-note vision and a command centre) each produce evidence, and the platform joins them into one ranked lead.',
+    role: 'I owned Fraud Shield: the scam classifier, warning markers, playbooks, the live-call monitor and the WhatsApp bot. I also built the supply-trail engine and the counterfeit serial-number check. 84 of 399 commits.',
+    stack: ['Python', 'NLP', 'Twilio', 'Graph ML', 'Next.js'],
+    metrics: [
+      { value: '183', label: 'tests passing' },
+      { value: '31', label: 'API endpoints' },
+    ],
+  },
+  {
+    slug: 'synapse-xr', name: 'Synapse XR', repo: gh('Synapse_XR'), domain: 'team',
+    context: 'DevsHouse · GDG on Campus VIT Chennai',
+    tagline: 'A remote expert guides a worker through AR, with holographic 3D hands.',
+    description: 'The expert’s hand movements, from a webcam or an ESP32 glove, are streamed into the worker’s Unity AR view, with object detection and safety checks on top.',
+    role: 'I owned the AI models: YOLOv8 Nano training, an LSTM to smooth hand motion, TFLite INT8 export, Gemini prompts for step checks, and the AR overlays in Unity.',
+    stack: ['YOLOv8', 'LSTM', 'TFLite', 'Unity AR', 'Gemini'],
+  },
+  {
+    slug: 'landroid', name: 'Landroid', repo: gh('Landroid'), domain: 'team',
+    context: 'Birdscale × VIT Chennai · 2026',
+    tagline: 'Turns drone survey data into land health, tree cover and land value on a map.',
+    description: 'A Flutter app and FastAPI backend serve large GeoTIFF rasters as map tiles and combine them with soil, weather and map data from five free APIs.',
+    role: 'I built the ML pipeline: an ARIMA trend model, raster validation and plant-zone scoring, and I replaced hard-coded rainfall and temperature with real API data in the health dashboard.',
+    stack: ['FastAPI', 'ARIMA', 'rasterio', 'Flutter', 'MapLibre'],
+  },
+  {
+    slug: 'showonce', name: 'ShowOnce', repo: gh('ShowOnce'), domain: 'team',
+    tagline: 'Show an agent a task once; it turns that into a checked, repeatable workflow.',
+    description: 'A walkthrough becomes a workflow contract. Each step is traced and verified, and failures are recovered from saved checkpoints. The live demo takes an issue from Slack to Linear and closes it only when the test passes.',
+    role: 'I wrote 24 of 43 commits: the Slack-to-Linear pipeline, encrypted secrets, a setup checker, offline tests and the recovery timeline view.',
+    stack: ['Python', 'Slack API', 'Linear', 'pytest'],
+  },
+  {
+    slug: 'codebase', name: 'CodeBase', repo: gh('CodeBase'), domain: 'team',
+    tagline: 'Connect a GitHub repo and ask questions about its code.',
+    description: 'A code-intelligence platform for understanding unfamiliar repositories: structure, search and dependencies, explained by an LLM.',
+    role: 'I wrote 15 of 27 commits: GitHub authentication, clear rate-limit and error messages, request validation, and a dashboard drawn from the real GitHub data.',
+    stack: ['TypeScript', 'Next.js', 'GitHub API'],
+  },
+  {
+    slug: 'webmcp-codex', name: 'WebMCP Forge (Codex edition)', repo: gh('CockPit-Codex'), domain: 'team',
+    context: 'with fawaz_ah',
+    tagline: 'A second version of WebMCP Forge that runs the agent against safe test targets.',
+    description: 'Depending on the input, the agent runs against your own app, a mock built from an OpenAPI spec, or nothing at all for third-party sites.',
+    role: 'I wrote 15 of 45 commits: the three execution tiers, the Prism mock target, the policy gate’s egress rules and the tests that cover them.',
+    stack: ['Next.js', 'TypeScript', 'Prism', 'Netlify'],
+  },
+  {
+    slug: 'weatherguard', name: 'WeatherGuard', repo: gh('SIH-137'), domain: 'team',
+    context: 'Smart India Hackathon · SIH-137',
+    tagline: 'Shows the safest direction to move in extreme weather, and the nearest hospital or police station.',
+    description: 'It reads the weather around you, works out which direction is safest, and finds shelters that way on a map.',
+    role: 'I moved it to Vite, replaced Google Maps and OpenWeather with free key-less APIs, added a FastAPI prediction engine and set up GitHub Pages deployment.',
+    stack: ['Vite', 'Leaflet', 'Open-Meteo', 'FastAPI'],
+  },
+  {
+    slug: 'hawkeye', name: 'Hawkeye', repo: gh('Hawkeye'), domain: 'team',
+    tagline: 'Real-time safety monitoring from video, audio and crowd movement.',
+    description: 'YOLO detects weapons, fire and falls, audio models detect gunshots and screams, and optical flow spots crowd panic. A fusion engine scores the risk and explains each alert with a replay and heatmap.',
+    role: 'I pushed the initial codebase; the team built on it.',
+    stack: ['YOLO', 'OpenCV', 'Librosa', 'FastAPI'],
+  },
+];
+
+/** Repos I forked from teammates and did not commit to. Listed for completeness, with credit. */
+export const FORKS = [
+  { name: 'UniTalks', repo: gh('amazon-first-commit'), by: 'Hazz-Y and team', what: 'Anonymous college-only social space over WebRTC' },
+  { name: 'AI Health Dashboard', repo: gh('AI_HEALTHCARE_DASHBOARD'), by: 'Prayag Sharma', what: 'Heart rate from a phone camera plus a risk model' },
+  { name: 'spatialAuth', repo: gh('spatialAuth'), by: 'Prayag Sharma, Pushkar Mishra', what: 'Login based on the signature of a room' },
+  { name: 'Donate ML backend', repo: gh('DONATE_ML_BACKENED'), by: 'Prayag Sharma', what: 'Razorpay payment server for donations' },
+  { name: 'E<T>WIN', repo: gh('E-T-win'), by: 'Yeswanth Ram, Logesh', what: 'City policy simulation with graph neural networks' },
+  { name: 'ClubHub', repo: gh('cluber'), by: 'Adharshan', what: 'Club management for VIT Chennai in React' },
+  { name: 'Detectonet', repo: gh('DETECTONET'), by: 'Shriharish V', what: 'Finds pirated copies of sports media' },
+  { name: 'RoyalCoders', repo: gh('RoyalCoders'), by: 'Jaaiwanth', what: 'Smart mechanic diagnostic dashboard' },
+  { name: 'quiz-app', repo: gh('quiz-app'), by: 'Jaaiwanth', what: 'Quiz app in React' },
+  { name: 'ytinov', repo: gh('ytinov'), by: 'Hari Balaji', what: 'Empty starter repo' },
+];
+
+
+export const LINKS = {
+  github: 'https://github.com/sudarsan2507-hue',
+  linkedin: 'https://www.linkedin.com/in/sudarsan-ravichandran-82b209391',
+  kaggle: 'https://www.kaggle.com/sudarsan007r',
+  ieee: 'https://ieeexplore.ieee.org/author/607201746740566',
+};
+
+export const PUBLICATION = {
+  title: 'Investigation of Interface Trap Charges on Schottky TFET for High-Frequency Application',
+  venue: '2026 IEEE 6th International Conference',
+  publisher: 'IEEE Xplore',
+  url: 'https://ieeexplore.ieee.org/document/11610552',
+  authors: ['Prayag Sharma', 'Sudarsan Ravichandran', 'Veer Vikram Saxena', 'Prashanth Kumar', 'Ravi Tiwari'],
+  summary:
+    'Schottky tunnel FETs replace a doped source with a metal-semiconductor Schottky junction, so carriers enter the channel by field emission and band-to-band tunnelling across a thin barrier. That gives very low OFF-state leakage and a sub-60 mV/decade subthreshold swing. This paper studies how charges trapped at the gate-oxide interface change that behaviour for high-frequency use.',
+  topics: ['Schottky TFET', 'Band-to-band tunnelling', 'Interface trap charges', 'Gate dielectric', 'Harmonic distortion', 'High-frequency analysis'],
+};
+
+export const DATASET = {
+  title: 'Skin Cancer Images: ISIC 2019 Preprocessed',
+  url: 'https://www.kaggle.com/datasets/sudarsan007r/isic-2019-preprocessed-leakage-free-split',
+  doi: 'https://doi.org/10.34740/kaggle/dsv/20910302',
+  summary:
+    'Many ISIC photos show the same lesion more than once, so a random split puts one lesion in both train and test and inflates the score. This version splits by lesion with StratifiedGroupKFold, so no lesion appears in two splits. Every image is cleaned, resized to 224×224 and ships with a lesion mask.',
+  metrics: [
+    { value: '25,331', label: 'dermoscopy images, 8 classes' },
+    { value: '0', label: 'lesions shared across splits' },
+    { value: '0.3 GB', label: 'down from 9.1 GB' },
+  ],
+  split: [
+    { name: 'train', count: '20,308' },
+    { name: 'val', count: '2,448' },
+    { name: 'test', count: '2,575' },
+  ],
+  pipeline: ['Non-Local Means denoise', 'Shades-of-Gray colour', 'CLAHE contrast', 'Crop to 224×224', 'DullRazor hair removal', 'Otsu lesion masks'],
+};
+
+export const CREDENTIALS = [
+  { label: 'IEEE author', detail: '1 publication · 2026', url: 'https://ieeexplore.ieee.org/author/607201746740566' },
+  { label: 'NLP research intern', detail: 'NIT Trichy · 2026', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
+  { label: 'Kaggle dataset · ISIC 2019', detail: 'DOI 10.34740/kaggle/dsv/20910302', url: 'https://doi.org/10.34740/kaggle/dsv/20910302' },
+  { label: 'OCI Generative AI Professional', detail: 'Oracle · 2025' },
+  { label: 'OCI Data Science Professional', detail: 'Oracle · 2025' },
+  { label: 'ET AI Hackathon · Birdscale × VIT · DevsHouse', detail: 'Hackathons · 2026' },
+];
