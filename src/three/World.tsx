@@ -4,15 +4,15 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { scroll, STATIONS, stationPos, stationSide, UNIVERSE_INDEX } from './store';
 import SearchGraph, { type SearchStats } from './stations/SearchGraph';
-import { Chokepoint, DataSplit, FailureLoop, Galaxy, SchottkyTFET, StackLayers, StationIndex, WaveField } from './stations/Stations';
+import { BandDiagram, CSIField, FailureLoop, Galaxy, InjectionVortex, LesionSort, StackAtom, StationIndex } from './stations/Stations';
 
 const idx = (id: (typeof STATIONS)[number]) => STATIONS.indexOf(id);
 
 function cameraPose(i: number, wide: boolean) {
   const p = stationPos(i);
   const side = stationSide(i);
-  const off = wide ? 4.3 : 0;
-  const dist = wide ? 10 : 14;
+  const off = wide ? 4.4 : 0;
+  const dist = wide ? 11 : 15;
   if (STATIONS[i] === 'contact') {
     return { pos: p.clone().add(new THREE.Vector3(0, 3.5, 11)), look: p.clone().add(new THREE.Vector3(0, -0.5, 0)) };
   }
@@ -116,20 +116,20 @@ export default function World({ onStats, reduced }: { onStats: (s: SearchStats) 
     <div ref={wrap} className="pointer-events-none fixed inset-0 z-0" aria-hidden>
       <Canvas camera={{ position: [0, 0, 10], fov: 50, near: 0.1, far: 400 }} dpr={[1, 1.6]} gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}>
         <color attach="background" args={['#06070d']} />
-        <fog attach="fog" args={['#06070d', 13, 34]} />
+        <fog attach="fog" args={['#06070d', 15, 33]} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[6, 10, 8]} intensity={1.4} />
         <pointLight position={[-6, 4, -40]} intensity={60} color="#a78bfa" />
         <CameraRig reduced={reduced} />
         <Visibility wrap={wrap} />
         <Corridor />
-        <Station i={idx('top')}><SearchGraph onStats={onStats} reduced={reduced} index={idx('top')} /></Station>
-        <Station i={idx('research')} scale={0.9}><FailureLoop index={idx('research')} /></Station>
-        <Station i={idx('paper')} scale={0.85}><SchottkyTFET index={idx('paper')} /></Station>
-        <Station i={idx('safety')} scale={0.62}><Chokepoint index={idx('safety')} /></Station>
-        <Station i={idx('sensing')} scale={0.72}><WaveField index={idx('sensing')} /></Station>
-        <Station i={idx('data')} scale={0.64}><DataSplit index={idx('data')} /></Station>
-        <Station i={idx('products')} scale={0.62}><StackLayers index={idx('products')} /></Station>
+        <Station i={idx('top')} scale={0.86}><SearchGraph onStats={onStats} reduced={reduced} index={idx('top')} /></Station>
+        <Station i={idx('research')} scale={1.15}><FailureLoop index={idx('research')} /></Station>
+        <Station i={idx('paper')} scale={0.85}><BandDiagram index={idx('paper')} /></Station>
+        <Station i={idx('safety')} scale={0.85}><InjectionVortex index={idx('safety')} /></Station>
+        <Station i={idx('sensing')} scale={0.72}><CSIField index={idx('sensing')} /></Station>
+        <Station i={idx('data')} scale={0.95}><LesionSort index={idx('data')} /></Station>
+        <Station i={idx('products')} scale={0.85}><StackAtom index={idx('products')} /></Station>
         <Station i={idx('contact')}><Galaxy index={idx('contact')} /></Station>
         <EffectComposer>
           <Bloom intensity={1.1} luminanceThreshold={0.18} luminanceSmoothing={0.3} mipmapBlur />
