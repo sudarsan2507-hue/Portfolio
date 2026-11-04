@@ -79,6 +79,16 @@ export function ProjectLinks({ project, size = 'sm' }: { project: Project; size?
       >
         <Github className="h-3.5 w-3.5" /> Code
       </a>
+      {project.branch && (
+        <a
+          href={project.branch.url}
+          target="_blank"
+          rel="noreferrer"
+          className={cn('inline-flex items-center gap-1.5 rounded-full border border-white/15 font-mono text-white/80 transition-colors hover:border-white/40 hover:text-white', cls)}
+        >
+          {project.branch.label} <ArrowUpRight className="h-3.5 w-3.5" />
+        </a>
+      )}
       {project.live && (
         <a
           href={project.live.url}

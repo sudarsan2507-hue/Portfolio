@@ -298,6 +298,9 @@ function SpecList({ slugs, compact }: { slugs: string[]; compact?: boolean }) {
               {p.live && (
                 <a href={p.live.url} target="_blank" rel="noreferrer" className="spec-live">{p.live.label} ↗</a>
               )}
+              {p.branch && (
+                <a href={p.branch.url} target="_blank" rel="noreferrer" className="spec-live">{p.branch.label} ↗</a>
+              )}
             </div>
           </li>
         );
