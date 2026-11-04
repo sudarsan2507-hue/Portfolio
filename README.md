@@ -1,20 +1,26 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Neural Flow Portfolio
 
-# Run and deploy your AI Studio app
+My personal portfolio site: an AI-themed single page with a 3D neural-network hero, horizontal
+scrolling sections, project cards and certifications (OCI Generative AI Professional, OCI Data
+Science Professional).
 
-This contains everything you need to run your app locally.
+## Built with
 
-View your app in AI Studio: https://ai.studio/apps/83986592-5036-4d33-bf03-bc6f4290725d
+React 19 · TypeScript · Vite · Tailwind CSS 4 · Three.js (React Three Fiber, drei) · GSAP ·
+Motion
 
-## Run Locally
+- `src/components/ThreeElements.tsx` - the 3D hero and animated neural background
+- `src/components/ProjectCard.tsx` - project cards
+- `src/components/CustomCursor.tsx` - custom cursor
+- `src/App.tsx` - page layout and sections
 
-**Prerequisites:**  Node.js
+## Run locally
 
+Requires Node.js.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+npm run dev
+```
+
+Build for production with `npm run build`; the output goes to `dist/`.
