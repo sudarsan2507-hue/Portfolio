@@ -430,87 +430,132 @@ export function CSIField({ index }: { index: number }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Dataset: thousands of images arrive as a cloud and sort themselves  */
-/* into train / val / test, keeping every lesion's photos together.   */
+/* Dataset: the 25,331 images as a cloud, coloured by their 8 real     */
+/* classes. A stream leaves it and splits through three gates into     */
+/* train / val / test, 80 / 10 / 10. Photos of one lesion travel as a  */
+/* tight group, so no lesion ever reaches two gates.                   */
 /* ------------------------------------------------------------------ */
-export function LesionSort({ index }: { index: number }) {
-  const N = 6000;
-  const splits = [
-    { name: 'train · 20,308', color: '#2dd4bf', share: 0.8, x: -1.7, w: 4.2 },
-    { name: 'val · 2,448', color: '#fbbf24', share: 0.1, x: 1.55, w: 0.9 },
-    { name: 'test · 2,575', color: '#f472b6', share: 0.1, x: 2.95, w: 0.9 },
-  ];
-  const { geom, start, target, colors } = useMemo(() => {
-    const start = new Float32Array(N * 3);
-    const target = new Float32Array(N * 3);
+const CLASSES = [
+  { name: 'NV', share: 0.508, color: '#a78bfa' },
+  { name: 'MEL', share: 0.179, color: '#fb7185' },
+  { name: 'BCC', share: 0.131, color: '#22d3ee' },
+  { name: 'BKL', share: 0.104, color: '#fbbf24' },
+  { name: 'AK', share: 0.034, color: '#34d399' },
+  { name: 'SCC', share: 0.025, color: '#f472b6' },
+  { name: 'VASC', share: 0.01, color: '#60a5fa' },
+  { name: 'DF', share: 0.009, color: '#e6e9f2' },
+];
+const GATES = [
+  { name: 'train · 20,308', share: 0.8, color: '#2dd4bf', y: 1.6, r: 1.25 },
+  { name: 'val · 2,448', share: 0.1, color: '#fbbf24', y: -0.6, r: 0.6 },
+  { name: 'test · 2,575', share: 0.1, color: '#f472b6', y: -2.1, r: 0.6 },
+];
+const SRC = new THREE.Vector3(-3.6, 0, 0);
+const GATE_X = 2.4;
+
+export function DatasetFlow({ index }: { index: number }) {
+  const N = 9000;
+  const { geom, seeds } = useMemo(() => {
     const colors = new Float32Array(N * 3);
     const c = new THREE.Color();
-    let i = 0;
-    splits.forEach((s, si) => {
-      const n = si === 0 ? Math.round(N * 0.8) : Math.round(N * 0.1);
-      const cols = Math.max(4, Math.round(s.w / 0.11));
-      for (let k = 0; k < n && i < N; k++, i++) {
-        // photos of one lesion (groups of ~3) share a start point, so they travel together
-        const lesion = Math.floor(k / 3);
-        const rnd = Math.sin(lesion * 12.9898 + si * 78.233) * 43758.5453;
-        const fr = rnd - Math.floor(rnd);
-        const rnd2 = Math.sin(lesion * 4.1414 + si * 3.7) * 9631.17;
-        const fr2 = rnd2 - Math.floor(rnd2);
-        const rnd3 = Math.sin(lesion * 7.77 + si) * 5179.3;
-        const fr3 = rnd3 - Math.floor(rnd3);
-        start.set([(fr - 0.5) * 11 + (Math.random() - 0.5) * 0.15, (fr2 - 0.5) * 7 + (Math.random() - 0.5) * 0.15, (fr3 - 0.5) * 6], i * 3);
-        const col = k % cols;
-        const row = Math.floor(k / cols);
-        const depth = row % 6;
-        const layer = Math.floor(row / 6);
-        target.set([s.x - s.w / 2 + col * 0.11, -2 + layer * 0.11, (depth - 2.5) * 0.11], i * 3);
-        c.set(s.color).multiplyScalar(0.7 + Math.random() * 0.5);
-        colors.set([c.r, c.g, c.b], i * 3);
-      }
+    const cum: number[] = [];
+    CLASSES.reduce((acc, k) => (cum.push(acc + k.share), acc + k.share), 0);
+    const seeds = Array.from({ length: N }, (_, i) => {
+      const lesion = Math.floor(i / 3); // ~3 photos per lesion share everything below
+      const h = (n: number) => {
+        const x = Math.sin(lesion * 12.9898 + n * 78.233) * 43758.5453;
+        return x - Math.floor(x);
+      };
+      const u = h(1);
+      const cls = Math.max(0, cum.findIndex((v) => u <= v));
+      const g = h(2) < 0.8 ? 0 : h(2) < 0.9 ? 1 : 2;
+      c.set(CLASSES[cls].color).multiplyScalar(0.75 + Math.random() * 0.4);
+      colors.set([c.r, c.g, c.b], i * 3);
+      return {
+        dir: new THREE.Vector3(h(3) - 0.5, h(4) - 0.5, h(5) - 0.5).normalize(),
+        rad: Math.cbrt(h(6)) * 1.9,
+        jitter: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(0.06),
+        gate: g,
+        phase: h(7),
+        speed: 0.8 + h(8) * 0.4,
+        lane: (h(9) - 0.5) * 2,
+        lane2: (h(10) - 0.5) * 2,
+      };
     });
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(start.slice(), 3));
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
     g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    return { geom: g, start, target, colors };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return { geom: g, seeds };
   }, []);
-  const delays = useMemo(() => Float32Array.from({ length: N }, (_, i) => (Math.sin(Math.floor(i / 3) * 1.7) * 0.5 + 0.5) * 0.45), []);
+
+  const rings = useRef<(THREE.Mesh | null)[]>([]);
   const group = useRef<THREE.Group>(null);
+  const v = new THREE.Vector3();
+  const p0 = new THREE.Vector3();
+  const p1 = new THREE.Vector3();
+  const p2 = new THREE.Vector3();
+
   useFrame(({ clock }) => {
-    const n = nearness(index);
-    if (n <= 0) return;
+    if (nearness(index) <= 0) return;
     const t = clock.getElapsedTime();
-    if (group.current) group.current.rotation.y = -0.5 + Math.sin(t * 0.25) * 0.2;
-    const assemble = Math.min(1, Math.max(0, (n - 0.3) / 0.6));
-    const p = geom.getAttribute('position') as THREE.BufferAttribute;
+    if (group.current) group.current.rotation.y = -0.35 + Math.sin(t * 0.2) * 0.18;
+    const pos = geom.getAttribute('position') as THREE.BufferAttribute;
+    const spin = t * 0.25;
     for (let i = 0; i < N; i++) {
-      const a = Math.min(1, Math.max(0, (assemble - delays[i]) / 0.55));
-      const e = 1 - Math.pow(1 - a, 3);
-      const sw = (1 - e) * 0.25;
-      p.setXYZ(
+      const s = seeds[i];
+      // 55% of the time a particle sits in the cloud; the rest it is in flight
+      const life = (s.phase + t * 0.045 * s.speed) % 1;
+      // position in the cloud, slowly rotating
+      v.copy(s.dir).multiplyScalar(s.rad);
+      const cx = v.x * Math.cos(spin) - v.z * Math.sin(spin);
+      const cz = v.x * Math.sin(spin) + v.z * Math.cos(spin);
+      p0.set(SRC.x + cx, SRC.y + v.y, SRC.z + cz);
+      if (life < 0.55) {
+        pos.setXYZ(i, p0.x + s.jitter.x, p0.y + s.jitter.y, p0.z + s.jitter.z);
+        continue;
+      }
+      const k = (life - 0.55) / 0.45;
+      const e = k * k * (3 - 2 * k);
+      const gt = GATES[s.gate];
+      // a curved path: out of the cloud, through a narrow waist, fanning to the gate
+      p1.set(-0.6, gt.y * 0.25, 0);
+      const ang = s.lane * Math.PI;
+      p2.set(GATE_X, gt.y + Math.sin(ang) * gt.r * 0.85 * Math.abs(s.lane2), Math.cos(ang) * gt.r * 0.85 * Math.abs(s.lane2));
+      const a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, c2 = e * e;
+      pos.setXYZ(
         i,
-        start[i * 3] + (target[i * 3] - start[i * 3]) * e + Math.sin(t + i) * sw,
-        start[i * 3 + 1] + (target[i * 3 + 1] - start[i * 3 + 1]) * e + Math.cos(t * 1.3 + i) * sw,
-        start[i * 3 + 2] + (target[i * 3 + 2] - start[i * 3 + 2]) * e,
+        a * p0.x + b * p1.x + c2 * p2.x + s.jitter.x,
+        a * p0.y + b * p1.y + c2 * p2.y + s.jitter.y,
+        a * p0.z + b * p1.z + c2 * p2.z + s.jitter.z,
       );
     }
-    p.needsUpdate = true;
+    pos.needsUpdate = true;
+    rings.current.forEach((r, i) => {
+      if (r) r.rotation.x = Math.PI / 2 + Math.sin(t + i) * 0.05;
+    });
   });
-  void colors;
+
   return (
-    <group ref={group}>
+    <group ref={group} scale={0.9} position={[-0.3, 0, 0]}>
       <points geometry={geom}>
-        <pointsMaterial size={0.07} vertexColors transparent opacity={0.95} sizeAttenuation toneMapped={false} />
+        <pointsMaterial size={0.05} vertexColors transparent opacity={0.95} sizeAttenuation toneMapped={false} />
       </points>
-      {[0.85, 2.25].map((x) => (
-        <mesh key={x} position={[x, -0.3, 0]}>
-          <planeGeometry args={[0.02, 3.8]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.4} toneMapped={false} side={THREE.DoubleSide} />
-        </mesh>
+      {GATES.map((g, i) => (
+        <group key={g.name} position={[GATE_X + 0.1, g.y, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <mesh ref={(m) => (rings.current[i] = m)}>
+            <torusGeometry args={[g.r, 0.035, 12, 96]} />
+            <meshBasicMaterial color={g.color} toneMapped={false} />
+          </mesh>
+          <mesh>
+            <circleGeometry args={[g.r, 64]} />
+            <meshBasicMaterial color={g.color} transparent opacity={0.08} side={THREE.DoubleSide} depthWrite={false} />
+          </mesh>
+        </group>
       ))}
-      {splits.map((s, i) => (
-        <Label key={s.name} position={[s.x, i === 1 ? -2.6 : 1.9, 0]} color={s.color}>{s.name}</Label>
+      {GATES.map((g) => (
+        <Label key={g.name} position={[GATE_X + 1.1, g.y + g.r + 0.25, 0]} color={g.color}>{g.name}</Label>
       ))}
+      <Label position={[SRC.x + 1.6, 2.4, 0]}>25,331 images · 8 classes</Label>
     </group>
   );
 }

@@ -4,7 +4,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { scroll, STATIONS, stationPos, stationSide, UNIVERSE_INDEX } from './store';
 import SearchGraph, { type SearchStats } from './stations/SearchGraph';
-import { BandDiagram, CSIField, FailureLoop, Galaxy, InjectionVortex, LesionSort, StackAtom, StationIndex } from './stations/Stations';
+import { BandDiagram, CSIField, FailureLoop, Galaxy, InjectionVortex, DatasetFlow, StackAtom, StationIndex } from './stations/Stations';
 
 const idx = (id: (typeof STATIONS)[number]) => STATIONS.indexOf(id);
 
@@ -128,7 +128,7 @@ export default function World({ onStats, reduced }: { onStats: (s: SearchStats) 
         <Station i={idx('paper')} scale={0.85}><BandDiagram index={idx('paper')} /></Station>
         <Station i={idx('safety')} scale={0.85}><InjectionVortex index={idx('safety')} /></Station>
         <Station i={idx('sensing')} scale={0.72}><CSIField index={idx('sensing')} /></Station>
-        <Station i={idx('data')} scale={0.95}><LesionSort index={idx('data')} /></Station>
+        <Station i={idx('data')} scale={1}><DatasetFlow index={idx('data')} /></Station>
         <Station i={idx('products')} scale={0.85}><StackAtom index={idx('products')} /></Station>
         <Station i={idx('contact')}><Galaxy index={idx('contact')} /></Station>
         <EffectComposer>
