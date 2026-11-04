@@ -1,26 +1,54 @@
-# Neural Flow Portfolio
+# Sudarsan Ravichandran · Portfolio
 
-My personal portfolio site: an AI-themed single page with a 3D neural-network hero, horizontal
-scrolling sections, project cards and certifications (OCI Generative AI Professional, OCI Data
-Science Professional).
+My portfolio site. Scrolling flies a camera through a 3D world with one scene per chapter of my work:
+
+| Chapter | 3D scene |
+|---|---|
+| Hero | A live failure-aware graph search that remembers dead ends and never retries them |
+| Research | A loop of points where a comet marks each failure and the point is remembered |
+| IEEE paper | A Schottky tunnel FET: electrons tunnel through the barrier, trap charges blink under the gate |
+| Agent safety | Tool calls stream into a checkpoint; allowed calls pass, injected ones are stopped |
+| Sensing | Wi-Fi waves between two ESP32 boards, with a satellite overhead |
+| Kaggle dataset | Image tiles assemble into train / val / test blocks in the real 80 / 10 / 10 split |
+| Apps | An exploded full stack: interface, API, model, deploy |
+| Universe | Every project as an interactive constellation (drag, hover, click) |
+| Contact | A spiral galaxy, one arm per area of work |
+
+All 47 of my GitHub repositories are accounted for. Team projects say which part was mine, and forks I
+didn't commit to are listed separately with credit to their authors.
 
 ## Built with
 
-React 19 · TypeScript · Vite · Tailwind CSS 4 · Three.js (React Three Fiber, drei) · GSAP ·
-Motion
+React 19 · TypeScript · Vite · Tailwind CSS 4 · Three.js with React Three Fiber, drei and postprocessing ·
+Motion · Lenis
 
-- `src/components/ThreeElements.tsx` - the 3D hero and animated neural background
-- `src/components/ProjectCard.tsx` - project cards
-- `src/components/CustomCursor.tsx` - custom cursor
-- `src/App.tsx` - page layout and sections
+| Path | What it is |
+|---|---|
+| `src/data/projects.ts` | Every project, the IEEE paper, the dataset and links. Edit this to update the content |
+| `src/three/store.ts` | Maps scroll position to a camera position between chapters |
+| `src/three/World.tsx` | The fixed WebGL world: camera rig, star corridor, bloom, the chapter scenes |
+| `src/three/stations/` | One 3D scene per chapter |
+| `src/components/ProjectUniverse.tsx` | The interactive project constellation |
+| `src/App.tsx`, `src/index.css` | Page layout, copy and styles |
+
+Each 3D scene only animates while the camera is near it, and the page respects `prefers-reduced-motion`.
 
 ## Run locally
 
-Requires Node.js.
+Requires Node.js 20 or newer.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build for production with `npm run build`; the output goes to `dist/`.
+Then open http://localhost:3000. `npm run build` writes a static site to `dist/`.
+
+## Deploy
+
+Every push to `main` builds the site and publishes it to GitHub Pages through
+`.github/workflows/deploy.yml`.
+
+## License
+
+[MIT](LICENSE)
