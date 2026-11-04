@@ -60,10 +60,10 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'graderag', name: 'GradeRAG', repo: gh('GradeRAG'), domain: 'research', featured: true,
-    context: 'NLP research internship · NIT Trichy · 2026',
+    context: 'NLP research internship · NIT Trichy · May to July 2026',
     tagline: 'A RAG pipeline that remembers its wrong answers and avoids repeating them.',
     description:
-      'Each wrong answer is labelled (retrieval or reasoning failure) and stored in a Mistake Knowledge Graph. For a new question, similar past mistakes are retrieved as warnings. I tested it on HotpotQA and TriviaQA with three models. The paper is under review, so only the results are public for now.',
+      'Full title: Retrieval-Augmented Generation with Persistent Mistake Knowledge Graph for Cross-Question Failure Learning. Each wrong answer is labelled (retrieval or reasoning failure) and stored in a Mistake Knowledge Graph. For a new question, similar past mistakes are retrieved as warnings. I tested it on HotpotQA and TriviaQA with three models. The paper is under review, so only the results are public for now.',
     stack: ['RAG', 'FAISS', 'MiniLM', 'Knowledge graphs', 'HotpotQA', 'TriviaQA'],
     metrics: [
       { value: '+29.5', label: 'points exact match, GPT-4o-mini on HotpotQA' },
@@ -269,6 +269,15 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
+    slug: 'spatialauth', name: 'spatialAuth', repo: gh('spatialAuth'), domain: 'team', featured: true,
+    context: 'Winner · Hack-N-Droid 2.0 · VIT Chennai · March 2026',
+    tagline: 'Logs you in only inside a room it recognises, using the room itself as the key.',
+    description: 'Every room has its own mix of Wi-Fi signal strengths, sound reflections and magnetic readings. The Android app captures them, turns them into a signature vector, hashes it into a Room Authentication Key and compares it with the registered room.',
+    role: 'I was on the team that won Hack-N-Droid 2.0 with this project. The repository is hosted on my teammate Prayag Sharma’s account.',
+    stack: ['Kotlin', 'Android sensors', 'Python', 'Signal processing'],
+    metrics: [{ value: '1st', label: 'place, Hack-N-Droid 2.0' }],
+  },
+  {
     slug: 'synapse-xr', name: 'Synapse XR', repo: gh('Synapse_XR'), domain: 'team',
     context: 'DevsHouse · GDG on Campus VIT Chennai',
     tagline: 'A remote expert guides a worker through AR, with holographic 3D hands.',
@@ -323,11 +332,10 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-/** Repos I forked from teammates and did not commit to. Listed for completeness, with credit. */
+/** Repos I forked from friends and teammates and did not commit to. Listed for completeness, with credit. */
 export const FORKS = [
   { name: 'UniTalks', repo: gh('amazon-first-commit'), by: 'Hazz-Y and team', what: 'Anonymous college-only social space over WebRTC' },
   { name: 'AI Health Dashboard', repo: gh('AI_HEALTHCARE_DASHBOARD'), by: 'Prayag Sharma', what: 'Heart rate from a phone camera plus a risk model' },
-  { name: 'spatialAuth', repo: gh('spatialAuth'), by: 'Prayag Sharma, Pushkar Mishra', what: 'Login based on the signature of a room' },
   { name: 'Donate ML backend', repo: gh('DONATE_ML_BACKENED'), by: 'Prayag Sharma', what: 'Razorpay payment server for donations' },
   { name: 'E<T>WIN', repo: gh('E-T-win'), by: 'Yeswanth Ram, Logesh', what: 'City policy simulation with graph neural networks' },
   { name: 'ClubHub', repo: gh('cluber'), by: 'Adharshan', what: 'Club management for VIT Chennai in React' },
@@ -376,10 +384,33 @@ export const DATASET = {
 };
 
 export const CREDENTIALS = [
+  { label: 'Winner · Hack-N-Droid 2.0', detail: 'Android Club, VIT Chennai · Mar 2026', url: 'https://github.com/sudarsan2507-hue/spatialAuth' },
   { label: 'IEEE author', detail: '1 publication · 2026', url: 'https://ieeexplore.ieee.org/author/607201746740566' },
-  { label: 'NLP research intern', detail: 'NIT Trichy · 2026', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
+  { label: 'NLP research intern, NIT Trichy', detail: 'May to July 2026 · rated Excellent', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
   { label: 'Kaggle dataset · ISIC 2019', detail: 'DOI 10.34740/kaggle/dsv/20910302', url: 'https://doi.org/10.34740/kaggle/dsv/20910302' },
   { label: 'OCI Generative AI Professional', detail: 'Oracle · 2025' },
   { label: 'OCI Data Science Professional', detail: 'Oracle · 2025' },
-  { label: 'ET AI Hackathon · Birdscale × VIT · DevsHouse', detail: 'Hackathons · 2026' },
 ];
+
+export const PEOPLE = [
+  {
+    name: 'Dr. A. Santhanavijayan',
+    title: 'Assistant Professor, Department of CSE, NIT Tiruchirappalli',
+    note: 'Supervised my GradeRAG research internship, 18 May to 2 July 2026.',
+  },
+  {
+    name: 'M. Sekar',
+    title: 'Mentor',
+    note: 'Mentored me through my projects.',
+  },
+];
+
+export const HACKATHON = {
+  name: 'Hack-N-Droid 2.0',
+  result: 'Winner',
+  date: '3 March 2026',
+  host: 'Android Club, VIT Chennai, with the Office of Student Welfare',
+  sponsors: ['Interview Buddy', 'SEQATO', '.xyz'],
+  project: 'spatialAuth',
+};
+
