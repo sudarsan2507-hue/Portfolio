@@ -37,6 +37,8 @@ export interface Project {
   stack: string[];
   metrics?: Metric[];
   live?: { label: string; url: string };
+  /** Where my own code lives when it is on a branch of someone else's repo. */
+  branch?: { label: string; url: string };
   context?: string;
   status?: string;
   featured?: boolean;
@@ -272,10 +274,11 @@ export const PROJECTS: Project[] = [
     slug: 'spatialauth', name: 'spatialAuth', repo: gh('spatialAuth'), domain: 'team', featured: true,
     context: 'Winner · Hack-N-Droid 2.0 · VIT Chennai · March 2026',
     tagline: 'Logs you in only inside a room it recognises, using the room itself as the key.',
-    description: 'Every room has its own mix of Wi-Fi signal strengths, sound reflections and magnetic readings. The Android app captures them, turns them into a signature vector, hashes it into a Room Authentication Key and compares it with the registered room.',
-    role: 'I was on the team that won Hack-N-Droid 2.0 with this project. The repository is hosted on my teammate Prayag Sharma’s account.',
-    stack: ['Kotlin', 'Android sensors', 'Python', 'Signal processing'],
+    description: 'Every room has its own mix of Wi-Fi signal strengths, sound reflections and magnetic readings. The Android app captures them as an 11-feature signature, and the backend decides whether the phone is in the registered room.',
+    role: 'I built the authentication backend: a One-Class SVM trained for each enrolled room, a login that takes 5 samples and accepts when at least 3 match, and a FastAPI service for enrolling and checking rooms, later refactored to handle many rooms. It is on the feature/ml-backend branch of the team repo.',
+    stack: ['One-Class SVM', 'scikit-learn', 'FastAPI', 'Kotlin', 'Android sensors'],
     metrics: [{ value: '1st', label: 'place, Hack-N-Droid 2.0' }],
+    branch: { label: 'My code: feature/ml-backend', url: 'https://github.com/prayag-1771/spatialAuth/tree/feature/ml-backend' },
   },
   {
     slug: 'synapse-xr', name: 'Synapse XR', repo: gh('Synapse_XR'), domain: 'team',
@@ -396,12 +399,12 @@ export const PEOPLE = [
   {
     name: 'Dr. A. Santhanavijayan',
     title: 'Assistant Professor, Department of CSE, NIT Tiruchirappalli',
-    note: 'Supervised my GradeRAG research internship, 18 May to 2 July 2026.',
+    note: 'Supervised our research internship, where I built GradeRAG, 18 May to 2 July 2026.',
   },
   {
     name: 'M. Sekar',
-    title: 'Mentor',
-    note: 'Mentored me through my projects.',
+    title: 'Research scholar, NIT Tiruchirappalli',
+    note: 'Mentored our intern group day to day during the GradeRAG internship.',
   },
 ];
 
