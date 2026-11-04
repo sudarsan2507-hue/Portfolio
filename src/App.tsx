@@ -1,11 +1,11 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import Lenis from 'lenis';
-import { ArrowUpRight, BookOpen, Database, Github, Linkedin, MousePointer2, X } from 'lucide-react';
+import { ArrowUpRight, Award, BookOpen, Database, Github, GraduationCap, Linkedin, MousePointer2, Trophy, X } from 'lucide-react';
 import type { SearchStats } from './three/stations/SearchGraph';
 import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
 import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
-import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, LINKS, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
+import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
 const World = lazy(() => import('./three/World'));
@@ -133,7 +133,7 @@ export default function App() {
           <h3 className="sub-head">Apps</h3>
           <SpecList compact slugs={['datepilot', 'codeg', 'phantomvoice', 'studentfrndly', 'medsmart', 'clas', 'smart-file-organizer', 'yt-knowledge', 'rag-browser', 'club-management']} />
           <h3 className="sub-head">Team builds</h3>
-          <SpecList compact slugs={['synapse-xr', 'landroid', 'showonce', 'codebase', 'webmcp-codex', 'weatherguard', 'hawkeye']} />
+          <SpecList compact slugs={['spatialauth', 'synapse-xr', 'landroid', 'showonce', 'codebase', 'webmcp-codex', 'weatherguard', 'hawkeye']} />
         </Chapter>
 
         <Universe />
@@ -175,7 +175,27 @@ function Rail({ current }: { current: number }) {
   );
 }
 
+const HIGHLIGHTS = [
+  { icon: Trophy, label: 'Winner', detail: 'Hack-N-Droid 2.0', href: LINKS.github + '/spatialAuth' },
+  { icon: BookOpen, label: 'IEEE author', detail: 'Schottky TFETs, 2026', href: PUBLICATION.url },
+  { icon: GraduationCap, label: 'Research intern', detail: 'NIT Trichy, NLP', href: LINKS.github + '/GradeRAG' },
+  { icon: Award, label: 'Kaggle dataset', detail: 'ISIC 2019, with DOI', href: DATASET.url },
+];
+
 function Hero({ stats }: { stats: SearchStats }) {
+  // Dead ends hit in each finished run, newest last. Falling bars = the search learning.
+  const [history, setHistory] = useState<number[]>([]);
+  const last = useRef(stats);
+  useEffect(() => {
+    if (stats.run !== last.current.run && stats.run > 1) {
+      const done = last.current.deadEnds;
+      setHistory((h) => [...h, done].slice(-10));
+    }
+    last.current = stats;
+  }, [stats]);
+  const bars = [...history, stats.deadEnds];
+  const max = Math.max(4, ...bars);
+
   return (
     <section id="top" className="hero">
       <div className="hero-inner">
@@ -196,27 +216,40 @@ function Hero({ stats }: { stats: SearchStats }) {
           ))}
         </h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="hero-sub">
-          I’m Sudarsan Ravichandran, a CSE (AI & ML) student at VIT Chennai. I’ve published with IEEE, interned in NLP
-          research at NIT Trichy, and I build retrieval systems, guardrails for AI agents and sensor hardware. Scroll
-          down to move through the work.
+          I’m Sudarsan Ravichandran, a CSE (AI & ML) student at VIT Chennai. I won Hack-N-Droid 2.0, I’ve published
+          with IEEE, and I interned in NLP research at NIT Trichy. I build retrieval systems, guardrails for AI agents
+          and sensor hardware.
         </motion.p>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="actions">
           <a href="#research" className="btn btn-solid">See my work ↓</a>
           <a href="#universe" className="btn">All projects</a>
         </motion.div>
+        <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }} className="highlights">
+          {HIGHLIGHTS.map((h) => (
+            <li key={h.label}>
+              <a href={h.href} target="_blank" rel="noreferrer">
+                <h.icon className="h-4 w-4" />
+                <span><b>{h.label}</b>{h.detail}</span>
+              </a>
+            </li>
+          ))}
+        </motion.ul>
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }} className="hud">
-        <div className="mono-label flex items-center gap-2 !text-[color:var(--fg)]">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[color:var(--ok)]" /> live · failure-aware graph search
+      <motion.figure initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }} className="readout" aria-label="Live search statistics">
+        <figcaption>
+          <span className="live-dot" /> Live search · run {pad(stats.run)}
+        </figcaption>
+        <div className="readout-bars" aria-hidden>
+          {bars.map((v, i) => (
+            <span key={i} className={i === bars.length - 1 ? 'now' : undefined} style={{ height: `${Math.max(6, (v / max) * 100)}%` }} />
+          ))}
         </div>
-        <div className="hud-grid">
-          <div><b>#{pad(stats.run)}</b>run</div>
-          <div><b style={{ color: 'var(--bad)' }}>{pad(stats.deadEnds)}</b>dead ends</div>
-          <div><b style={{ color: 'var(--violet)' }}>{pad(stats.remembered)}</b>remembered</div>
-        </div>
-        <p className="hud-note">The search remembers every dead end (red) and never tries it again, so each run makes fewer mistakes.</p>
-      </motion.div>
+        <p>
+          Dead ends per run: <b style={{ color: 'var(--bad)' }}>{stats.deadEnds}</b> this run, <b style={{ color: 'var(--violet)' }}>{stats.remembered}</b> remembered.
+          The search never retries a dead end, so the bars shrink.
+        </p>
+      </motion.figure>
     </section>
   );
 }
@@ -384,6 +417,23 @@ function Contact() {
                 <span>{s.label}</span>
                 <ArrowUpRight className="ml-auto h-4 w-4 opacity-50" />
               </a>
+            ))}
+          </div>
+        </Reveal>
+        <Reveal delay={0.12}>
+          <div className="people">
+            <div className="person win">
+              <div className="mono-label"><Trophy className="mr-1 inline h-3.5 w-3.5" /> {HACKATHON.result} · {HACKATHON.date}</div>
+              <h3>{HACKATHON.name}</h3>
+              <p>{HACKATHON.host}. Our project, {HACKATHON.project}, took first place.</p>
+              <p className="sponsors">Sponsors: {HACKATHON.sponsors.join(' · ')}</p>
+            </div>
+            {PEOPLE.map((p) => (
+              <div key={p.name} className="person">
+                <div className="mono-label">{p.title}</div>
+                <h3>{p.name}</h3>
+                <p>{p.note}</p>
+              </div>
             ))}
           </div>
         </Reveal>

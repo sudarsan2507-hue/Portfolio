@@ -111,16 +111,16 @@ em {
 .hero { position: relative; min-height: 100svh; display: flex; align-items: center; }
 .hero-inner {
   width: 100%; max-width: 1200px; margin-inline: auto;
-  padding: 120px max(16px, env(safe-area-inset-right, 0px)) 160px max(16px, env(safe-area-inset-left, 0px));
+  padding: 120px max(16px, env(safe-area-inset-right, 0px)) 90px max(16px, env(safe-area-inset-left, 0px));
 }
 @media (min-width: 640px) { .hero-inner { padding-left: 32px; padding-right: 32px; } }
 .hero-title {
   margin-top: 22px;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(2.4rem, 5.6vw, 5.4rem);
+  font-size: clamp(2.6rem, 6vw, 5.8rem);
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
   text-wrap: balance;
   max-width: 12ch;
 }
@@ -131,18 +131,32 @@ em {
   background: linear-gradient(90deg, rgba(6,7,13,0.88) 0%, rgba(6,7,13,0.55) 38%, transparent 62%);
 }
 
-.hud {
-  position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 28px;
-  width: min(360px, calc(100% - 32px));
-  padding: 16px 18px; border-radius: 18px;
-  background: rgba(8, 10, 20, 0.7); border: 1px solid var(--line); backdrop-filter: blur(10px);
+.highlights { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 8px; max-width: 760px; }
+.highlights a {
+  display: flex; align-items: center; gap: 10px; padding: 9px 14px 9px 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: rgba(8, 10, 20, 0.55); backdrop-filter: blur(8px);
+  color: var(--muted); font-size: 12.5px; transition: border-color .2s, color .2s;
 }
-@media (min-width: 640px) { .hud { left: 32px; } }
-@media (min-width: 1240px) { .hud { left: calc((100vw - 1200px) / 2 + 32px); } }
-@media (max-width: 639px) { .hud { display: none; } }
-.hud-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-.hud-grid b { display: block; font-size: 22px; font-weight: 500; color: var(--fg); font-variant-numeric: tabular-nums; }
-.hud-note { margin-top: 10px; font-size: 12px; line-height: 1.45; color: var(--faint); }
+.highlights a:hover { border-color: rgba(238,241,248,0.4); color: var(--fg); }
+.highlights svg { color: var(--cyan); flex-shrink: 0; }
+.highlights li:first-child svg { color: #fbbf24; }
+.highlights b { display: block; color: var(--fg); font-weight: 600; font-size: 13px; }
+
+.readout {
+  position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 36px;
+  width: 280px; margin: 0; padding: 14px 16px; border-radius: 16px;
+  background: radial-gradient(ellipse at 40% 55%, rgba(6, 7, 13, 0.9) 30%, rgba(6, 7, 13, 0.55) 70%, transparent 100%);
+}
+@media (min-width: 1100px) { .readout { right: 90px; } }
+@media (max-width: 899px) { .readout { display: none; } }
+.readout figcaption { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--fg); }
+.live-dot { width: 7px; height: 7px; border-radius: 99px; background: var(--ok); box-shadow: 0 0 10px var(--ok); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.35; } }
+.readout-bars { margin-top: 10px; height: 44px; display: flex; align-items: flex-end; gap: 4px; border-bottom: 1px solid var(--line); }
+.readout-bars span { flex: 1; max-width: 18px; border-radius: 3px 3px 0 0; background: color-mix(in srgb, var(--bad) 45%, transparent); transition: height .4s; }
+.readout-bars span.now { background: var(--bad); box-shadow: 0 0 12px color-mix(in srgb, var(--bad) 60%, transparent); }
+.readout p { margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--faint); }
+.readout p b { font-variant-numeric: tabular-nums; }
 
 /* ---------- buttons ---------- */
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
@@ -180,7 +194,7 @@ em {
 .chapter-title {
   margin-top: 14px;
   font-family: var(--font-display); font-weight: 800;
-  font-size: clamp(2rem, 4.2vw, 3.7rem); line-height: 0.98; letter-spacing: -0.04em;
+  font-size: clamp(2.1rem, 4.4vw, 3.9rem); line-height: 1; letter-spacing: -0.03em;
   text-wrap: balance;
 }
 .lede { margin-top: 18px; color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 50ch; }
@@ -264,7 +278,7 @@ em {
 /* ---------- contact ---------- */
 .contact { position: relative; min-height: 130vh; padding-block: 30vh 40px; display: flex; align-items: flex-end; }
 .contact > .wrap { width: 100%; }
-.contact-title { margin-top: 16px; font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 8vw, 7.5rem); line-height: 0.92; letter-spacing: -0.045em; text-wrap: balance; max-width: 12ch; }
+.contact-title { margin-top: 16px; font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 7.5vw, 7rem); line-height: 0.95; letter-spacing: -0.035em; text-wrap: balance; max-width: 13ch; }
 .social-grid { margin-top: 40px; display: grid; gap: 10px; grid-template-columns: 1fr; max-width: 760px; }
 @media (min-width: 560px) { .social-grid { grid-template-columns: 1fr 1fr; } }
 .social {
@@ -322,3 +336,13 @@ em {
 .forks li a:hover { color: var(--cyan); }
 .forks li span { grid-column: 1 / -1; color: var(--muted); }
 .forks li small { grid-row: 1; grid-column: 2; font-family: var(--font-mono); font-size: 11px; color: var(--faint); text-align: right; }
+
+/* hackathon + people */
+.people { margin-top: 44px; display: grid; gap: 12px; grid-template-columns: 1fr; max-width: 1000px; }
+@media (min-width: 760px) { .people { grid-template-columns: 1.3fr 1fr 1fr; } }
+.person { padding: 20px; border-radius: 18px; border: 1px solid var(--line); background: rgba(8,10,20,0.6); backdrop-filter: blur(8px); min-width: 0; }
+.person.win { border-color: color-mix(in srgb, #fbbf24 45%, transparent); }
+.person.win .mono-label { color: #fbbf24; }
+.person h3 { margin-top: 8px; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+.person p { margin-top: 6px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.person .sponsors { font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
