@@ -1,272 +1,407 @@
-import React, { useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Hero3D, NeuralBackground } from './components/ThreeElements';
-import { CustomCursor } from './components/CustomCursor';
-import { ProjectCard } from './components/ProjectCard';
-import { motion, useScroll, useTransform } from 'motion/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Brain, Code, Cpu, Database, Globe, Layers, Mail, ShieldCheck, Terminal, Award, Github } from 'lucide-react';
+import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import Lenis from 'lenis';
+import { ArrowUpRight, BookOpen, Database, Github, Linkedin, MousePointer2, X } from 'lucide-react';
+import type { SearchStats } from './three/stations/SearchGraph';
+import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
+import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
+import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, LINKS, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
-gsap.registerPlugin(ScrollTrigger);
+const World = lazy(() => import('./three/World'));
+const ProjectUniverse = lazy(() => import('./components/ProjectUniverse'));
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const bySlug = (s: string) => PROJECTS.find((p) => p.slug === s)!;
+
+const SOCIAL = [
+  { label: 'GitHub', href: LINKS.github, icon: Github },
+  { label: 'LinkedIn', href: LINKS.linkedin, icon: Linkedin },
+  { label: 'Kaggle', href: LINKS.kaggle, icon: Database },
+  { label: 'IEEE Xplore', href: LINKS.ieee, icon: BookOpen },
+];
 
 export default function App() {
-  const horizontalRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const [stats, setStats] = useState<SearchStats>({ run: 1, deadEnds: 0, remembered: 0 });
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const sections = gsap.utils.toArray('.horizontal-section');
-      
-      gsap.to(sections, {
-        xPercent: -100 * (sections.length - 1),
-        ease: "none",
-        scrollTrigger: {
-          trigger: horizontalRef.current,
-          pin: true,
-          scrub: 1,
-          snap: 1 / (sections.length - 1),
-          end: () => "+=" + horizontalRef.current?.offsetWidth,
-        }
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  const { scrollYProgress } = useScroll();
-  const zoomScale = useTransform(scrollYProgress, [0, 0.2], [1, 15]);
-  const zoomOpacity = useTransform(scrollYProgress, [0.15, 0.25], [1, 0]);
+    const stop = initScrollTracking();
+    const on = (i: number) => setCurrent(i);
+    scroll.listeners.add(on);
+    let lenis: Lenis | null = null;
+    let raf = 0;
+    if (!reduced) {
+      lenis = new Lenis({ lerp: 0.085, anchors: true });
+      const loop = (t: number) => {
+        lenis!.raf(t);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    }
+    return () => {
+      stop();
+      scroll.listeners.delete(on);
+      cancelAnimationFrame(raf);
+      lenis?.destroy();
+    };
+  }, [reduced]);
 
   return (
-    <div ref={containerRef} className="bg-neural-dark">
-      <CustomCursor />
+    <div className="relative">
+      <Suspense fallback={null}>
+        <World onStats={setStats} reduced={reduced} />
+      </Suspense>
 
-      {/* 3D Background Layer */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
-          <NeuralBackground />
-        </Canvas>
-      </div>
+      <Nav />
+      <Rail current={current} />
 
-      {/* Hero Section */}
-      <section className="relative h-screen flex flex-col items-center justify-center z-10 overflow-hidden">
-        <motion.div 
-          style={{ scale: zoomScale, opacity: zoomOpacity }}
-          className="absolute inset-0 z-0 flex items-center justify-center"
-        >
-          <Canvas>
-            <Hero3D />
-          </Canvas>
-        </motion.div>
+      <main className="relative z-10">
+        <Hero stats={stats} />
 
-        <div className="relative z-10 text-center px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          >
-            <span className="font-mono text-neural-blue uppercase tracking-[0.5em] text-sm mb-4 block">
-              CSE (AI/ML) Student @ VIT Chennai
-            </span>
-            <h1 className="text-[12vw] font-display font-black leading-none tracking-tighter uppercase text-white mix-blend-difference">
-              Sudarsan<br />R
-            </h1>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="mt-12 flex flex-col items-center"
-          >
-            <div className="w-px h-24 bg-gradient-to-b from-neural-blue to-transparent animate-pulse" />
-            <span className="font-mono text-xs mt-4 opacity-50 uppercase tracking-widest">Scroll to process</span>
-          </motion.div>
-        </div>
-      </section>
+        <Chapter id="research" n={1} kicker="Research" title={<>What I study: <em>how systems learn from failure.</em></>}>
+          <p className="lede">
+            In each of these projects I measure whether telling a system why it failed makes it fail less. I report
+            the results that didn’t improve as well.
+          </p>
+          <SpecList slugs={['graderag', 'demosearch', 'glass-armor', 'iaudit']} />
+        </Chapter>
 
-      {/* About Section */}
-      <section className="relative min-h-screen flex items-center py-32 px-12 md:px-24 z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
-          <div className="space-y-8">
-            <h2 className="text-7xl font-display font-bold uppercase tracking-tighter">
-              Cognitive <br />
-              <span className="text-neural-blue">Architecture</span>
-            </h2>
-            <p className="text-xl text-white/70 font-light leading-relaxed max-w-xl">
-              Building systems that don't just compute, but comprehend. Specialized in Large Language Models, Computer Vision, and Differential Environmental Gradient Analysis.
+        <Chapter id="paper" n={2} kicker="IEEE publication" title={<>My IEEE paper, <em>on Schottky tunnel FETs.</em></>}>
+          <div className="paper">
+            <div className="mono-label">{PUBLICATION.venue} · {PUBLICATION.publisher}</div>
+            <h3 className="paper-title">{PUBLICATION.title}</h3>
+            <p className="authors">
+              {PUBLICATION.authors.map((a, i) => (
+                <span key={a}>
+                  <span className={a === 'Sudarsan Ravichandran' ? 'me' : undefined}>{a}</span>
+                  {i < PUBLICATION.authors.length - 1 && <span className="sep">, </span>}
+                </span>
+              ))}
             </p>
-            <div className="flex gap-4">
-              <div className="p-6 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
-                <div className="text-4xl font-display font-bold text-neural-blue">8.0</div>
-                <div className="text-xs font-mono uppercase opacity-50 mt-2">CGPA @ VIT Chennai</div>
-              </div>
-              <div className="p-6 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
-                <div className="text-4xl font-display font-bold text-neural-purple">2025</div>
-                <div className="text-xs font-mono uppercase opacity-50 mt-2">OCI Certified</div>
-              </div>
+            <p className="body">{PUBLICATION.summary}</p>
+            <div className="chips">{PUBLICATION.topics.map((t) => <Chip key={t}>{t}</Chip>)}</div>
+            <div className="actions">
+              <a className="btn btn-solid" href={PUBLICATION.url} target="_blank" rel="noreferrer">Read on IEEE Xplore <ArrowUpRight className="h-4 w-4" /></a>
+              <a className="btn" href={LINKS.ieee} target="_blank" rel="noreferrer">Author profile</a>
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { icon: <Brain />, label: "LLMs & RAG" },
-              { icon: <ShieldCheck />, label: "Safety Systems" },
-              { icon: <Cpu />, label: "Edge AI" },
-              { icon: <Database />, label: "Vector DBs" }
-            ].map((skill, i) => (
-              <motion.div 
-                key={i}
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                className="p-8 border border-white/10 rounded-3xl flex flex-col items-center justify-center gap-4 text-center"
-              >
-                <div className="text-neural-blue">{skill.icon}</div>
-                <div className="font-mono text-xs uppercase tracking-widest">{skill.label}</div>
-              </motion.div>
+        </Chapter>
+
+        <Chapter id="safety" n={3} kicker="Agent safety" title={<>Keeping AI agents <em>in check.</em></>}>
+          <p className="lede">I assume some prompt injections will get through, so I build the layer that stops them from doing damage.</p>
+          <SpecList slugs={['choketap', 'aegis', 'sentinelmind', 'engram', 'webmcp-forge']} />
+        </Chapter>
+
+        <Chapter id="sensing" n={4} kicker="Sensing & hardware" title={<>Hardware that <em>senses the real world.</em></>}>
+          <p className="lede">ESP32 boards, Wi-Fi signals, microphones and satellite data. For each one I measure how often it raises a false alarm.</p>
+          <SpecList slugs={['wisp', 'hydrofuse', 'syrinx', 'safesignal']} />
+        </Chapter>
+
+        <Chapter id="data" n={5} kicker="Kaggle dataset" title={<>My Kaggle dataset, <em>for skin cancer.</em></>}>
+          <div className="paper">
+            <div className="mono-label">Published on Kaggle · CC BY-NC 4.0 · DOI</div>
+            <h3 className="paper-title">{DATASET.title}</h3>
+            <p className="body">{DATASET.summary}</p>
+            <div className="ds-metrics">
+              {DATASET.metrics.map((m) => (
+                <div key={m.label}><b>{m.value}</b><span>{m.label}</span></div>
+              ))}
+            </div>
+            <div className="ds-split" aria-hidden>
+              {DATASET.split.map((s) => <div key={s.name} className={`ds-${s.name}`} />)}
+            </div>
+            <div className="ds-legend">
+              {DATASET.split.map((s) => (
+                <span key={s.name}><i className={`ds-${s.name}`} />{s.name} <b>{s.count}</b></span>
+              ))}
+            </div>
+            <ol className="ds-pipe">
+              {DATASET.pipeline.map((step) => <li key={step}>{step}</li>)}
+            </ol>
+            <div className="actions">
+              <a className="btn btn-solid" href={DATASET.url} target="_blank" rel="noreferrer">View the dataset <ArrowUpRight className="h-4 w-4" /></a>
+              <a className="btn" href={DATASET.doi} target="_blank" rel="noreferrer">DOI</a>
+              <a className="btn" href={LINKS.kaggle} target="_blank" rel="noreferrer">Kaggle profile</a>
+            </div>
+          </div>
+        </Chapter>
+
+        <Chapter id="products" n={6} kicker="Apps & team builds" title={<>Apps I built, <em>alone and with teams.</em></>}>
+          <p className="lede">Each app runs end to end, from the model to the interface. In the team projects I say exactly which part was mine.</p>
+          <h3 className="sub-head">Apps</h3>
+          <SpecList compact slugs={['datepilot', 'codeg', 'phantomvoice', 'studentfrndly', 'medsmart', 'clas', 'smart-file-organizer', 'yt-knowledge', 'rag-browser', 'club-management']} />
+          <h3 className="sub-head">Team builds</h3>
+          <SpecList compact slugs={['synapse-xr', 'landroid', 'showonce', 'codebase', 'webmcp-codex', 'weatherguard', 'hawkeye']} />
+        </Chapter>
+
+        <Universe />
+
+        <Contact />
+      </main>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- */
+
+function Nav() {
+  return (
+    <header className="nav">
+      <a href="#top" className="brand">Sudarsan<span>R.</span></a>
+      <nav className="nav-links">
+        {SOCIAL.map((s) => (
+          <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label}>
+            <s.icon className="h-4 w-4" />
+            <span className="hidden lg:inline">{s.label}</span>
+          </a>
+        ))}
+      </nav>
+    </header>
+  );
+}
+
+function Rail({ current }: { current: number }) {
+  return (
+    <nav className="rail" aria-label="Chapters">
+      {STATIONS.map((id, i) => (
+        <a key={id} href={`#${id}`} className={cn('rail-item', i === current && 'on')}>
+          <span className="rail-label">{STATION_LABEL[id]}</span>
+          <span className="rail-dot" />
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function Hero({ stats }: { stats: SearchStats }) {
+  return (
+    <section id="top" className="hero">
+      <div className="hero-inner">
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mono-label">
+          Sudarsan Ravichandran · CSE (AI & ML) · VIT Chennai
+        </motion.p>
+        <h1 className="hero-title">
+          {[
+            <>I build AI</>,
+            <>that learns from</>,
+            <><em>its mistakes.</em></>,
+          ].map((line, i) => (
+            <span key={i} className="block overflow-hidden pb-[0.08em]">
+              <motion.span className="block" initial={{ y: '105%' }} animate={{ y: 0 }} transition={{ delay: 0.3 + i * 0.13, duration: 0.95, ease: [0.22, 1, 0.36, 1] }}>
+                {line}
+              </motion.span>
+            </span>
+          ))}
+        </h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="hero-sub">
+          I’m Sudarsan Ravichandran, a CSE (AI & ML) student at VIT Chennai. I’ve published with IEEE, interned in NLP
+          research at NIT Trichy, and I build retrieval systems, guardrails for AI agents and sensor hardware. Scroll
+          down to move through the work.
+        </motion.p>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="actions">
+          <a href="#research" className="btn btn-solid">See my work ↓</a>
+          <a href="#universe" className="btn">All projects</a>
+        </motion.div>
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }} className="hud">
+        <div className="mono-label flex items-center gap-2 !text-[color:var(--fg)]">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[color:var(--ok)]" /> live · failure-aware graph search
+        </div>
+        <div className="hud-grid">
+          <div><b>#{pad(stats.run)}</b>run</div>
+          <div><b style={{ color: 'var(--bad)' }}>{pad(stats.deadEnds)}</b>dead ends</div>
+          <div><b style={{ color: 'var(--violet)' }}>{pad(stats.remembered)}</b>remembered</div>
+        </div>
+        <p className="hud-note">The search remembers every dead end (red) and never tries it again, so each run makes fewer mistakes.</p>
+      </motion.div>
+    </section>
+  );
+}
+
+function Chapter({ id, n, kicker, title, children }: { id: StationId; n: number; kicker: string; title: ReactNode; children: ReactNode }) {
+  const side = stationSide(STATIONS.indexOf(id));
+  return (
+    <section id={id} className={cn('chapter', side < 0 ? 'right' : 'left')}>
+      <div className="chapter-body">
+        <Reveal>
+          <div className="mono-label"><span className="ch">CH.{pad(n)}</span> {kicker}</div>
+          <h2 className="chapter-title">{title}</h2>
+        </Reveal>
+        <Reveal delay={0.1}>{children}</Reveal>
+      </div>
+    </section>
+  );
+}
+
+function SpecList({ slugs, compact }: { slugs: string[]; compact?: boolean }) {
+  return (
+    <ul className={cn('specs', compact && 'compact')}>
+      {slugs.map((s) => {
+        const p = bySlug(s);
+        const d = domainById[p.domain];
+        const m = p.metrics?.[0];
+        return (
+          <li key={s} style={{ ['--c' as string]: d.color }}>
+            <div className="spec-head">
+              <a href={p.repo} target="_blank" rel="noreferrer" className="spec-name">
+                {p.name} <ArrowUpRight className="h-4 w-4" />
+              </a>
+              {m && !compact && (
+                <span className="spec-metric" title={m.label}>
+                  {m.value}<small>{m.label}</small>
+                </span>
+              )}
+              {p.status && <span className="spec-status">{p.status}</span>}
+            </div>
+            {p.context && <div className="spec-context">{p.context}</div>}
+            <p className="spec-tag">{p.tagline}</p>
+            <p className="spec-desc">{p.description}</p>
+            {p.role && <p className="spec-role"><b>My part.</b> {p.role}</p>}
+            <div className="spec-foot">
+              <span className="spec-stack">{p.stack.slice(0, compact ? 4 : 5).join(' · ')}</span>
+              {p.live && (
+                <a href={p.live.url} target="_blank" rel="noreferrer" className="spec-live">{p.live.label} ↗</a>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function Universe() {
+  const reduced = useReducedMotion();
+  const [filter, setFilter] = useState<Domain | 'all'>('all');
+  const [selected, setSelected] = useState<Project | null>(null);
+  const [ref, seen] = useInView<HTMLDivElement>('400px');
+  const [box, visible] = useVisible<HTMLDivElement>('100px');
+  const list = useMemo(() => (filter === 'all' ? PROJECTS : PROJECTS.filter((p) => p.domain === filter)), [filter]);
+
+  return (
+    <section id="universe" className="universe">
+      <div className="wrap">
+        <Reveal>
+          <div className="mono-label"><span className="ch">CH.07</span> Project universe</div>
+          <h2 className="chapter-title">All my projects, <em>in one view.</em></h2>
+          <p className="mono-label mt-4 flex items-center gap-2"><MousePointer2 className="h-4 w-4" /> drag to orbit · hover to read · click to open</p>
+        </Reveal>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Filter active={filter === 'all'} onClick={() => setFilter('all')} color="#eef1f8">All · {PROJECTS.length}</Filter>
+          {DOMAINS.map((d) => (
+            <Filter key={d.id} active={filter === d.id} onClick={() => setFilter(d.id)} color={d.color}>
+              {d.label} · {PROJECTS.filter((p) => p.domain === d.id).length}
+            </Filter>
+          ))}
+        </div>
+      </div>
+
+      <div ref={ref} className="universe-stage">
+        <div ref={box} className="pointer-events-none absolute inset-0" />
+        {seen && (
+          <Suspense fallback={null}>
+            <div className="absolute inset-0">
+              <ProjectUniverse filter={filter} selected={selected} onSelect={setSelected} reduced={reduced} active={visible} />
+            </div>
+          </Suspense>
+        )}
+        <AnimatePresence>
+          {selected && (
+            <motion.aside key={selected.slug} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} className="u-panel">
+              <button onClick={() => setSelected(null)} className="u-close" aria-label="Close"><X className="h-4 w-4" /></button>
+              <div className="mono-label" style={{ color: domainById[selected.domain].color }}>{domainById[selected.domain].label}</div>
+              <h3 className="mt-2 font-display text-2xl font-bold">{selected.name}</h3>
+              {selected.context && <div className="mono-label mt-1">{selected.context}</div>}
+              <p className="mt-3 text-sm font-medium">{selected.tagline}</p>
+              <p className="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">{selected.description}</p>
+              {selected.role && <p className="spec-role mt-3"><b>My part.</b> {selected.role}</p>}
+              <div className="mt-4 flex flex-wrap gap-1.5">{selected.stack.map((s) => <Chip key={s}>{s}</Chip>)}</div>
+              <div className="mt-5"><ProjectLinks project={selected} /></div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="wrap">
+        <ul className="index">
+          {list.map((p) => {
+            const d = domainById[p.domain];
+            return (
+              <li key={p.slug} style={{ ['--c' as string]: d.color }}>
+                <a href={p.repo} target="_blank" rel="noreferrer">
+                  <span className="idx-domain">{d.short}</span>
+                  <span className="idx-name">{p.name}</span>
+                  <span className="idx-tag">{p.context ? `${p.context}. ` : ''}{p.tagline}</span>
+                  <ArrowUpRight className="idx-arrow h-4 w-4" />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="forks">
+          <h3 className="sub-head">Forked from teammates</h3>
+          <p className="lede">I forked these from friends’ and teammates’ accounts but didn’t write code in them. They’re listed here so all 47 repos are accounted for, with credit to the people who built them.</p>
+          <ul>
+            {FORKS.map((f) => (
+              <li key={f.name}>
+                <a href={f.repo} target="_blank" rel="noreferrer">{f.name}</a>
+                <span>{f.what}</span>
+                <small>by {f.by}</small>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Filter({ active, onClick, color, children }: { active: boolean; onClick: () => void; color: string; children: ReactNode }) {
+  return (
+    <button onClick={onClick} className={cn('filter', active && 'on')} style={{ ['--c' as string]: color }}>
+      {children}
+    </button>
+  );
+}
+
+function Contact() {
+  return (
+    <section id="contact" className="contact">
+      <div className="wrap">
+        <Reveal>
+          <div className="mono-label"><span className="ch">CH.08</span> Contact</div>
+          <h2 className="contact-title">Want to work together? <em>Get in touch.</em></h2>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div className="social-grid">
+            {SOCIAL.map((s) => (
+              <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="social">
+                <s.icon className="h-5 w-5" />
+                <span>{s.label}</span>
+                <ArrowUpRight className="ml-auto h-4 w-4 opacity-50" />
+              </a>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Horizontal Projects Section */}
-      <div ref={horizontalRef} className="relative overflow-hidden">
-        <div className="horizontal-container">
-          <section className="horizontal-section flex items-center justify-center bg-neural-dark border-r border-white/5">
-            <ProjectCard 
-              title="YT Knowledge Assistant"
-              description="A RAG pipeline utilizing LLAMA-3 and a custom SQLite vector schema for intelligent video content querying."
-              tags={["LLAMA-3", "RAG", "SQLite", "Python"]}
-              image="https://picsum.photos/seed/yt/1200/800"
-            />
-          </section>
-          <section className="horizontal-section flex items-center justify-center bg-neural-dark border-r border-white/5">
-            <ProjectCard 
-              title="Hawkeye Safety"
-              description="Multi-modal safety system using YOLOv8 for detection and Gemini 2.5 Flash for contextual reasoning."
-              tags={["YOLOv8", "Gemini 2.5", "Computer Vision"]}
-              image="https://picsum.photos/seed/hawk/1200/800"
-            />
-          </section>
-          <section className="horizontal-section flex items-center justify-center bg-neural-dark">
-            <ProjectCard 
-              title="Disaster Navigation"
-              description="Safety-prioritized engine using Differential Environmental Gradient Analysis for optimal routing in crises."
-              tags={["Algorithms", "Navigation", "C++", "GIS"]}
-              image="https://picsum.photos/seed/disaster/1200/800"
-            />
-          </section>
+        </Reveal>
+        <Reveal delay={0.15}>
+          <ul className="creds">
+            {CREDENTIALS.map((c) => (
+              <li key={c.label}>
+                {c.url ? <a href={c.url} target="_blank" rel="noreferrer">{c.label}</a> : <span>{c.label}</span>}
+                <small>{c.detail}</small>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+        <div className="foot mono-label">
+          <span>© 2026 Sudarsan Ravichandran</span>
+          <span>Rendered live in WebGL · React Three Fiber</span>
         </div>
       </div>
-
-      {/* Skills Matrix */}
-      <section className="relative py-32 px-12 md:px-24 z-10">
-        <h2 className="text-8xl font-display font-black uppercase tracking-tighter mb-24 text-center">
-          Skill <span className="text-glitch">Matrix</span>
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Cognitive Intelligence",
-              icon: <Brain className="w-8 h-8" />,
-              skills: ["PyTorch", "TensorFlow", "Scikit-Learn", "HuggingFace", "LangChain", "OpenCV"],
-              color: "text-neural-blue"
-            },
-            {
-              title: "Structural Logic",
-              icon: <Terminal className="w-8 h-8" />,
-              skills: ["Python", "C++", "Java", "SQL", "Data Structures", "Algorithms"],
-              color: "text-neural-purple"
-            },
-            {
-              title: "Execution",
-              icon: <Layers className="w-8 h-8" />,
-              skills: ["Docker", "Git", "OCI Cloud", "Flask", "FastAPI", "Linux"],
-              color: "text-white"
-            }
-          ].map((category, i) => (
-            <div key={i} className="p-12 border border-white/10 rounded-[3rem] bg-white/5 backdrop-blur-xl group hover:border-neural-blue/50 transition-colors">
-              <div className={cn("mb-8", category.color)}>{category.icon}</div>
-              <h3 className="text-3xl font-display font-bold uppercase mb-8">{category.title}</h3>
-              <div className="flex flex-wrap gap-3">
-                {category.skills.map(skill => (
-                  <span key={skill} className="px-4 py-2 text-xs font-mono border border-white/10 rounded-lg bg-white/5">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Accolades */}
-      <section className="relative py-32 px-12 md:px-24 z-10 bg-white text-black rounded-[4rem] mx-4">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-24">
-          <h2 className="text-7xl font-display font-black uppercase tracking-tighter leading-none">
-            Verified <br />
-            <span className="text-neural-purple">Excellence</span>
-          </h2>
-          <div className="flex gap-4">
-            <Award size={64} className="text-neural-purple" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {[
-            {
-              title: "OCI Generative AI Professional",
-              issuer: "Oracle Cloud Infrastructure",
-              year: "2025",
-              id: "OCI-GENAI-2025"
-            },
-            {
-              title: "OCI Data Science Professional",
-              issuer: "Oracle Cloud Infrastructure",
-              year: "2025",
-              id: "OCI-DS-2025"
-            }
-          ].map((cert, i) => (
-            <div key={i} className="group p-12 border border-black/10 rounded-3xl flex justify-between items-center hover:bg-black hover:text-white transition-all duration-500">
-              <div>
-                <div className="font-mono text-xs uppercase opacity-50 mb-2">{cert.issuer}</div>
-                <h3 className="text-3xl font-display font-bold uppercase">{cert.title}</h3>
-                <div className="mt-4 font-mono text-sm">{cert.id}</div>
-              </div>
-              <div className="text-4xl font-display font-black opacity-20 group-hover:opacity-100 transition-opacity">
-                {cert.year}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Contact */}
-      <footer className="relative h-screen flex flex-col items-center justify-center z-10 px-12 text-center">
-        <h2 className="text-[10vw] font-display font-black uppercase tracking-tighter leading-none mb-12">
-          Let's <span className="text-neural-blue">Connect</span>
-        </h2>
-        
-        <div className="flex flex-wrap justify-center gap-8 mb-24">
-          <a href="mailto:sudarsan@example.com" className="interactive group flex items-center gap-4 text-2xl font-display font-bold uppercase hover:text-neural-blue transition-colors">
-            <Mail /> Email
-          </a>
-          <a href="https://github.com" className="interactive group flex items-center gap-4 text-2xl font-display font-bold uppercase hover:text-neural-blue transition-colors">
-            <Github /> Github
-          </a>
-          <a href="https://linkedin.com" className="interactive group flex items-center gap-4 text-2xl font-display font-bold uppercase hover:text-neural-blue transition-colors">
-            <Globe /> LinkedIn
-          </a>
-        </div>
-
-        <div className="absolute bottom-12 font-mono text-[10px] uppercase tracking-[0.5em] opacity-30">
-          Sudarsan R © 2026 // Neural Flow Portfolio
-        </div>
-      </footer>
-    </div>
+    </section>
   );
 }
