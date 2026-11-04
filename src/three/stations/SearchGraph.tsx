@@ -18,9 +18,9 @@ export interface SearchStats {
 
 const NODE_COUNT = 140;
 const K = 3;
-const STEP_TIME = 0.32;
+const STEP_TIME = 0.42;
 
-const C_IDLE = new THREE.Color('#3b4a6b');
+const C_IDLE = new THREE.Color('#4a5a88');
 const C_PATH = new THREE.Color('#22d3ee');
 const C_DEAD = new THREE.Color('#fb7185');
 const C_MEM = new THREE.Color('#7f1d3a');
@@ -36,6 +36,15 @@ function mulberry32(seed: number) {
   };
 }
 
+const R = 3.4;
+const SEG = 12;
+
+/** A point on the arc from a to b that lifts off the globe, like a flight path. */
+function arcPoint(a: THREE.Vector3, b: THREE.Vector3, t: number, out: THREE.Vector3) {
+  const lift = 1 + 0.16 * Math.sin(Math.PI * t) * (a.distanceTo(b) / 1.2);
+  return out.lerpVectors(a, b, t).normalize().multiplyScalar(R * lift);
+}
+
 function buildGraph() {
   const rand = mulberry32(7);
   const pts: THREE.Vector3[] = [];
@@ -43,9 +52,8 @@ function buildGraph() {
   for (let i = 0; i < NODE_COUNT; i++) {
     const y = 1 - (i / (NODE_COUNT - 1)) * 2;
     const r = Math.sqrt(1 - y * y);
-    const th = golden * i;
-    const radius = 3.1 + (rand() - 0.5) * 1.1;
-    pts.push(new THREE.Vector3(Math.cos(th) * r * radius, y * radius, Math.sin(th) * r * radius));
+    const th = golden * i + (rand() - 0.5) * 0.3;
+    pts.push(new THREE.Vector3(Math.cos(th) * r, y, Math.sin(th) * r).normalize().multiplyScalar(R));
   }
   const adj: number[][] = pts.map(() => []);
   const edges: [number, number][] = [];
@@ -140,22 +148,48 @@ export default function SearchGraph({ onStats, reduced, index }: { onStats: (s: 
   });
 
   const baseEdges = useMemo(() => {
-    const arr = new Float32Array(edges.length * 6);
+    const arr = new Float32Array(edges.length * SEG * 6);
+    const u = new THREE.Vector3();
+    const v = new THREE.Vector3();
     edges.forEach(([a, b], i) => {
-      arr.set([pts[a].x, pts[a].y, pts[a].z, pts[b].x, pts[b].y, pts[b].z], i * 6);
+      for (let k = 0; k < SEG; k++) {
+        arcPoint(pts[a], pts[b], k / SEG, u);
+        arcPoint(pts[a], pts[b], (k + 1) / SEG, v);
+        arr.set([u.x, u.y, u.z, v.x, v.y, v.z], (i * SEG + k) * 6);
+      }
     });
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
     return g;
   }, [edges, pts]);
 
+  // A dusting of points over the globe's surface.
+  const dust = useMemo(() => {
+    const n = 5000;
+    const arr = new Float32Array(n * 3);
+    const c = new Float32Array(n * 3);
+    const tint = new THREE.Color();
+    for (let i = 0; i < n; i++) {
+      const d = new THREE.Vector3().randomDirection().multiplyScalar(R * (0.985 + Math.random() * 0.02));
+      arr.set([d.x, d.y, d.z], i * 3);
+      tint.set(i % 5 === 0 ? '#6d5bd0' : '#2b3a66').multiplyScalar(0.6 + Math.random() * 0.6);
+      c.set([tint.r, tint.g, tint.b], i * 3);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    g.setAttribute('color', new THREE.BufferAttribute(c, 3));
+    return g;
+  }, []);
+
   const trailGeom = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(400 * 6), 3));
-    g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(400 * 6), 3));
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(400 * SEG * 6), 3));
+    g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(400 * SEG * 6), 3));
     g.setDrawRange(0, 0);
     return g;
   }, []);
+  const tmpA = useMemo(() => new THREE.Vector3(), []);
+  const tmpB = useMemo(() => new THREE.Vector3(), []);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -164,19 +198,22 @@ export default function SearchGraph({ onStats, reduced, index }: { onStats: (s: 
     const pos = trailGeom.getAttribute('position') as THREE.BufferAttribute;
     const col = trailGeom.getAttribute('color') as THREE.BufferAttribute;
     const n = Math.min(s.visited.length, 400);
+    let v = 0;
     for (let i = 0; i < n; i++) {
       const m = s.visited[i];
-      const a = pts[m.from];
-      const b = pts[m.to];
-      pos.setXYZ(i * 2, a.x, a.y, a.z);
-      pos.setXYZ(i * 2 + 1, b.x, b.y, b.z);
       const c = m.kind === 'path' ? C_PATH : C_DEAD;
-      col.setXYZ(i * 2, c.r, c.g, c.b);
-      col.setXYZ(i * 2 + 1, c.r, c.g, c.b);
+      for (let k = 0; k < SEG; k++) {
+        arcPoint(pts[m.from], pts[m.to], k / SEG, tmpA);
+        arcPoint(pts[m.from], pts[m.to], (k + 1) / SEG, tmpB);
+        pos.setXYZ(v, tmpA.x, tmpA.y, tmpA.z);
+        col.setXYZ(v++, c.r, c.g, c.b);
+        pos.setXYZ(v, tmpB.x, tmpB.y, tmpB.z);
+        col.setXYZ(v++, c.r, c.g, c.b);
+      }
     }
     pos.needsUpdate = true;
     col.needsUpdate = true;
-    trailGeom.setDrawRange(0, n * 2);
+    trailGeom.setDrawRange(0, v);
   };
 
   const startEpisode = () => {
@@ -221,7 +258,7 @@ export default function SearchGraph({ onStats, reduced, index }: { onStats: (s: 
         s.t += delta / STEP_TIME;
         const m = ep.moves[s.step];
         if (pulse.current) {
-          pulse.current.position.lerpVectors(pts[m.from], pts[m.to], Math.min(s.t, 1));
+          arcPoint(pts[m.from], pts[m.to], Math.min(s.t, 1), pulse.current.position);
           const c = m.kind === 'path' ? C_PATH : C_DEAD;
           (pulse.current.material as THREE.MeshBasicMaterial).color.copy(c);
         }
@@ -266,8 +303,15 @@ export default function SearchGraph({ onStats, reduced, index }: { onStats: (s: 
 
   return (
     <group ref={group}>
+      <mesh>
+        <sphereGeometry args={[R * 0.97, 48, 48]} />
+        <meshBasicMaterial color="#05060c" transparent opacity={0.9} />
+      </mesh>
+      <points geometry={dust}>
+        <pointsMaterial size={0.03} vertexColors transparent opacity={0.9} sizeAttenuation />
+      </points>
       <lineSegments geometry={baseEdges}>
-        <lineBasicMaterial color="#5b6b8f" transparent opacity={0.18} />
+        <lineBasicMaterial color="#7c8fc4" transparent opacity={0.12} />
       </lineSegments>
       <lineSegments ref={trail} geometry={trailGeom}>
         <lineBasicMaterial vertexColors transparent opacity={0.95} toneMapped={false} />
