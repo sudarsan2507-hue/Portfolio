@@ -346,3 +346,10 @@ em {
 .person h3 { margin-top: 8px; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
 .person p { margin-top: 6px; font-size: 13px; line-height: 1.55; color: var(--muted); }
 .person .sponsors { font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
+
+/* project images */
+.spec-fig { margin: 12px 0 0; }
+.spec-fig img { display: block; width: 100%; max-width: 100%; max-height: 260px; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); background: #0a0d1a; }
+.spec-fig figcaption { margin-top: 6px; font-size: 11.5px; line-height: 1.45; color: var(--faint); }
+.spec-thumb { display: block; margin-top: 8px; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; border-radius: 10px; border: 1px solid var(--line); background: #0a0d1a; }
+.u-img { display: block; margin-top: 12px; width: 100%; max-height: 180px; object-fit: cover; object-position: top; border-radius: 10px; border: 1px solid var(--line); }

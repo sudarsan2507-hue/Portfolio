@@ -9,7 +9,8 @@ import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, LINKS, PEO
 import { cn } from './lib/utils';
 
 const World = lazy(() => import('./three/World'));
-const ProjectUniverse = lazy(() => import('./components/ProjectUniverse'));
+const ProjectCarousel = lazy(() => import('./components/ProjectCarousel'));
+const imageUrl = (file: string) => `${import.meta.env.BASE_URL}work/${file}`;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const bySlug = (s: string) => PROJECTS.find((p) => p.slug === s)!;
@@ -291,7 +292,16 @@ function SpecList({ slugs, compact }: { slugs: string[]; compact?: boolean }) {
             </div>
             {p.context && <div className="spec-context">{p.context}</div>}
             <p className="spec-tag">{p.tagline}</p>
+            {p.image && compact && (
+              <img className="spec-thumb" src={imageUrl(p.image.src)} alt={p.image.caption} loading="lazy" />
+            )}
             <p className="spec-desc">{p.description}</p>
+            {p.image && !compact && (
+              <figure className="spec-fig">
+                <img src={imageUrl(p.image.src)} alt={p.image.caption} loading="lazy" />
+                <figcaption>{p.image.caption}</figcaption>
+              </figure>
+            )}
             {p.role && <p className="spec-role"><b>My part.</b> {p.role}</p>}
             <div className="spec-foot">
               <span className="spec-stack">{p.stack.slice(0, compact ? 4 : 5).join(' · ')}</span>
@@ -323,7 +333,7 @@ function Universe() {
         <Reveal>
           <div className="mono-label"><span className="ch">CH.07</span> Project universe</div>
           <h2 className="chapter-title">All my projects, <em>in one view.</em></h2>
-          <p className="mono-label mt-4 flex items-center gap-2"><MousePointer2 className="h-4 w-4" /> drag to orbit · hover to read · click to open</p>
+          <p className="mono-label mt-4 flex items-center gap-2"><MousePointer2 className="h-4 w-4" /> drag to spin · click a card to open it</p>
         </Reveal>
         <div className="mt-6 flex flex-wrap gap-2">
           <Filter active={filter === 'all'} onClick={() => setFilter('all')} color="#eef1f8">All · {PROJECTS.length}</Filter>
@@ -340,7 +350,7 @@ function Universe() {
         {seen && (
           <Suspense fallback={null}>
             <div className="absolute inset-0">
-              <ProjectUniverse filter={filter} selected={selected} onSelect={setSelected} reduced={reduced} active={visible} />
+              <ProjectCarousel projects={list} selected={selected} onSelect={setSelected} reduced={reduced} active={visible} />
             </div>
           </Suspense>
         )}
@@ -350,6 +360,7 @@ function Universe() {
               <button onClick={() => setSelected(null)} className="u-close" aria-label="Close"><X className="h-4 w-4" /></button>
               <div className="mono-label" style={{ color: domainById[selected.domain].color }}>{domainById[selected.domain].label}</div>
               <h3 className="mt-2 font-display text-2xl font-bold">{selected.name}</h3>
+              {selected.image && <img className="u-img" src={imageUrl(selected.image.src)} alt={selected.image.caption} />}
               {selected.context && <div className="mono-label mt-1">{selected.context}</div>}
               <p className="mt-3 text-sm font-medium">{selected.tagline}</p>
               <p className="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">{selected.description}</p>

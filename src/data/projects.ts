@@ -37,6 +37,8 @@ export interface Project {
   stack: string[];
   metrics?: Metric[];
   live?: { label: string; url: string };
+  /** A real screenshot or results figure from the repo, in public/work/. */
+  image?: { src: string; caption: string };
   /** Where my own code lives when it is on a branch of someone else's repo. */
   branch?: { label: string; url: string };
   context?: string;
@@ -50,6 +52,7 @@ export const PROJECTS: Project[] = [
   // ---------------- Research ----------------
   {
     slug: 'glass-armor', name: 'Glass Armor', repo: gh('GLASS-ARMOR'), domain: 'research', featured: true,
+    image: { src: 'glass-armor-2.webp', caption: 'Repair results: with test feedback the model fixed 0 of 31 insecure outputs; with Glass Armor’s gate feedback it fixed 10.' },
     tagline: 'I tested whether LLMs can safely move code to post-quantum cryptography. Often they can’t.',
     description:
       'I built a benchmark of 20 Python programs with 77 flawed migrations that still pass every test, ran 400 migrations across 4 models, and wrote a security gate (Semgrep rules, AST dataflow and live probes). With the gate’s feedback, a capable model fixed flaws that test feedback never caught.',
@@ -62,6 +65,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'graderag', name: 'GradeRAG', repo: gh('GradeRAG'), domain: 'research', featured: true,
+    image: { src: 'graderag.webp', caption: 'Accuracy, mistake-avoidance rate and improvement over standard RAG, across three models and two datasets.' },
     context: 'NLP research internship · NIT Trichy · May to July 2026',
     tagline: 'A RAG pipeline that remembers its wrong answers and avoids repeating them.',
     description:
@@ -76,6 +80,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'demosearch', name: 'DemoSearch', repo: gh('DemoSearch'), domain: 'research', featured: true,
+    image: { src: 'demosearch.webp', caption: 'How much a diagnosed failure helps as mistakes surface later in the search.' },
     tagline: 'A study of when telling a search agent about its failures actually helps.',
     description:
       'It began as Failure-Aware Graph Search and grew into experiments on synthetic graphs, 295 hard Sudoku puzzles, MetaQA, WebQSP and LLM code repair on MBPP+. I wrote the hypotheses down before each run. The main finding: a failure helps only when it comes with a reason.',
@@ -87,6 +92,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'iaudit', name: 'iAudit', repo: gh('iAudit'), domain: 'research', featured: true,
+    image: { src: 'iaudit.webp', caption: 'Brain-age bias after correction, by sex and by scanner site, for DeepBrainNet and two tabular models.' },
     tagline: 'A fairness audit of models that estimate age from brain MRI.',
     description:
       'I compared DeepBrainNet, a CNN on raw T1 MRI, with three simple models on brain-volume features, to see whether the errors for some groups come from the scanner or from the model. There is a demo site with 26 real cases.',
@@ -112,6 +118,7 @@ export const PROJECTS: Project[] = [
   // ---------------- Agent safety ----------------
   {
     slug: 'choketap', name: 'Choketap', repo: gh('ChokeTap'), domain: 'agents', featured: true,
+    image: { src: 'choketap.webp', caption: 'Containment benchmark: no attacks got through, and what each check cost legitimate work.' },
     tagline: 'A checkpoint that every tool call from an AI agent must pass before it runs.',
     description:
       'It sits between a Gemma agent and its tools and checks three things: is the tool allowed, did the data come from an untrusted document, and does the action match what the user asked. Even when a prompt injection gets into the agent, it can’t send data anywhere the user didn’t name.',
@@ -123,6 +130,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'sentinelmind', name: 'SentinelMind', repo: gh('Sentinel_Mind'), domain: 'agents', featured: true,
+    image: { src: 'sentinelmind.webp', caption: 'The live dashboard on a 12-step agent run: timeline, verdict mix, latency and reasons.' },
     tagline: 'A second AI that watches an agent while it runs and flags its mistakes.',
     description:
       'Every step gets a verdict (OK, warning or anomaly) with a short reason. It catches tools that don’t exist, repeated calls, drifting away from the goal and errors the agent ignored. Mistakes are saved and given back to the agent on its next run. You add it with one decorator.',
@@ -131,6 +139,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'engram', name: 'Engram', repo: gh('Engram'), domain: 'agents', featured: true,
+    image: { src: 'engram.webp', caption: 'The inspector: the warehouse as the robot’s memory sees it, with poisoned claims quarantined.' },
     tagline: 'Offline memory for AI agents on edge devices that can’t be poisoned through sync.',
     description:
       'Each device answers from its own Qdrant Edge store with no network. When devices sync, a screening step checks where each memory came from and whether it conflicts, and only verified memories are ever searched. The demo runs six poisoning attacks and checks that each one is stopped.',
@@ -161,6 +170,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'hydrofuse', name: 'HydroFuse', repo: gh('HydroFuse'), domain: 'sensing', featured: true,
+    image: { src: 'hydrofuse-2.webp', caption: 'The dashboard during a simulated leak: soil moisture, leak-band vibration and no rain.' },
     tagline: 'Finds underground water-pipe leaks by combining ground sensors with satellite data.',
     description:
       'ESP32-S3 nodes measure soil moisture, vibration and magnetic field. Sentinel-1 and 2, SMAP, a DEM and MODIS add the view from orbit. Wet ground alone could be rain, so a leak is flagged only when there is wet ground, vibration in the leak band and no rain.',
@@ -177,6 +187,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'safesignal', name: 'SafeSignal', repo: gh('Safe-Signal'), domain: 'sensing', featured: true,
+    image: { src: 'safesignal.webp', caption: 'The start screen: what stays on the device, and the 10-second cancel.' },
     tagline: 'A web app that notices signs of distress and prepares an alert for people you trust.',
     description:
       'It watches for a hand signal, tension in your voice or sudden violent movement, all on the phone, with nothing uploaded. It writes the alert with your location and gives you 10 seconds to cancel. It never claims a message was sent when it can’t confirm it.',
@@ -196,6 +207,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'codeg', name: 'CoDeg', repo: gh('CoDeg'), domain: 'products', featured: true,
+    image: { src: 'codeg.webp', caption: 'The duel lobby.' },
     tagline: 'A two-player coding duel where faster code hits harder.',
     description:
       'Both players get the same problem. The first correct solution lands a hit; run time scales the damage and low memory use gives armour. Code runs in a locked-down Docker sandbox with no network.',
@@ -209,6 +221,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'studentfrndly', name: 'StudentFrndly', repo: gh('Student-frndly'), domain: 'products',
+    image: { src: 'studentfrndly.webp', caption: 'The dashboard leads with the skill you are closest to forgetting.' },
     tagline: 'Tracks how fast you are forgetting each skill and tells you what to revise today.',
     description: 'Every skill fades on a half-life curve from the last time you practised it. Quick tests restore it, and a two-week forecast shows what will drop next. Includes Google sign-in and an admin view.',
     stack: ['Express', 'SQLite', 'React', 'JWT', 'Google OAuth'],
@@ -245,12 +258,14 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'club-management', name: 'Club Management System', repo: gh('Club-Management-System'), domain: 'products',
+    image: { src: 'club-management.webp', caption: 'The admin dashboard.' },
     tagline: 'A club manager for members, events, attendance and funds, in plain JavaScript.',
     description: 'Built without frameworks: role-based login, member and event management, attendance, announcements and a fund tracker, all stored in the browser.',
     stack: ['HTML', 'CSS', 'JavaScript'],
   },
   {
     slug: 'cyber-glitch', name: 'Cyber//Glitch', repo: gh('Tundra-0727'), domain: 'products',
+    image: { src: 'cyber-glitch.webp', caption: 'The threat-telemetry terminal page.' },
     tagline: 'A cybersecurity-themed landing page with glitch effects and animated telemetry.',
     description: 'A small React and Vite page with keyboard controls to start a scan, arm the glitch effect and reset.',
     stack: ['React', 'TypeScript', 'Vite'],
@@ -259,6 +274,7 @@ export const PROJECTS: Project[] = [
   // ---------------- Team builds (I contributed code) ----------------
   {
     slug: 'aegis', name: 'Aegis AI', repo: gh('Aegis'), domain: 'agents', featured: true,
+    image: { src: 'aegis.webp', caption: 'The command centre map, where scam, mule and counterfeit signals meet.' },
     context: 'ET AI Hackathon 2026 · team of 4',
     tagline: 'Connects scam calls, money-mule accounts and fake currency into one case for the police.',
     description:
@@ -282,6 +298,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'synapse-xr', name: 'Synapse XR', repo: gh('Synapse_XR'), domain: 'team',
+    image: { src: 'synapse-xr.webp', caption: 'Output from the YOLOv8 model I trained for the AR overlay.' },
     context: 'DevsHouse · GDG on Campus VIT Chennai',
     tagline: 'A remote expert guides a worker through AR, with holographic 3D hands.',
     description: 'The expert’s hand movements, from a webcam or an ESP32 glove, are streamed into the worker’s Unity AR view, with object detection and safety checks on top.',
@@ -290,6 +307,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'landroid', name: 'Landroid', repo: gh('Landroid'), domain: 'team',
+    image: { src: 'landroid.webp', caption: 'An NDVI raster from the drone survey, used for the land health score.' },
     context: 'Birdscale × VIT Chennai · 2026',
     tagline: 'Turns drone survey data into land health, tree cover and land value on a map.',
     description: 'A Flutter app and FastAPI backend serve large GeoTIFF rasters as map tiles and combine them with soil, weather and map data from five free APIs.',
