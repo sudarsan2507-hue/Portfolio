@@ -150,7 +150,7 @@ export default function App() {
 function Nav() {
   return (
     <header className="nav">
-      <a href="#top" className="brand">Sudarsan<span>R.</span></a>
+      <a href="#top" className="brand">Sudarsan <span>Ravichandran</span></a>
       <nav className="nav-links">
         {SOCIAL.map((s) => (
           <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label}>
@@ -299,7 +299,7 @@ function SpecList({ slugs, compact }: { slugs: string[]; compact?: boolean }) {
             {p.image && !compact && (
               <figure className="spec-fig">
                 <img src={imageUrl(p.image.src)} alt={p.image.caption} loading="lazy" />
-                <figcaption>{p.image.caption}</figcaption>
+                <figcaption>{p.image.illustration && <b>Illustration. </b>}{p.image.caption}</figcaption>
               </figure>
             )}
             {p.role && <p className="spec-role"><b>My part.</b> {p.role}</p>}
@@ -356,17 +356,30 @@ function Universe() {
         )}
         <AnimatePresence>
           {selected && (
-            <motion.aside key={selected.slug} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} className="u-panel">
+            <motion.aside key={selected.slug} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="u-panel" style={{ ['--c' as string]: domainById[selected.domain].color }}>
               <button onClick={() => setSelected(null)} className="u-close" aria-label="Close"><X className="h-4 w-4" /></button>
-              <div className="mono-label" style={{ color: domainById[selected.domain].color }}>{domainById[selected.domain].label}</div>
-              <h3 className="mt-2 font-display text-2xl font-bold">{selected.name}</h3>
-              {selected.image && <img className="u-img" src={imageUrl(selected.image.src)} alt={selected.image.caption} />}
-              {selected.context && <div className="mono-label mt-1">{selected.context}</div>}
-              <p className="mt-3 text-sm font-medium">{selected.tagline}</p>
-              <p className="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">{selected.description}</p>
-              {selected.role && <p className="spec-role mt-3"><b>My part.</b> {selected.role}</p>}
-              <div className="mt-4 flex flex-wrap gap-1.5">{selected.stack.map((s) => <Chip key={s}>{s}</Chip>)}</div>
-              <div className="mt-5"><ProjectLinks project={selected} /></div>
+              {selected.image && (
+                <figure className="u-fig">
+                  <img src={imageUrl(selected.image.src)} alt={selected.image.caption} />
+                  {selected.image.illustration && <span className="u-badge">Illustration</span>}
+                </figure>
+              )}
+              <div className="u-body">
+                <div className="mono-label" style={{ color: 'var(--c)' }}>{domainById[selected.domain].label}{selected.context ? ` · ${selected.context}` : ''}</div>
+                <h3 className="u-title">{selected.name}</h3>
+                <p className="u-tag">{selected.tagline}</p>
+                {selected.metrics && (
+                  <div className="u-metrics">
+                    {selected.metrics.slice(0, 3).map((m) => (
+                      <div key={m.label}><b>{m.value}</b><span>{m.label}</span></div>
+                    ))}
+                  </div>
+                )}
+                <p className="u-desc">{selected.description}</p>
+                {selected.role && <p className="spec-role"><b>My part.</b> {selected.role}</p>}
+                <div className="mt-4 flex flex-wrap gap-1.5">{selected.stack.map((s) => <Chip key={s}>{s}</Chip>)}</div>
+                <div className="mt-5"><ProjectLinks project={selected} /></div>
+              </div>
             </motion.aside>
           )}
         </AnimatePresence>

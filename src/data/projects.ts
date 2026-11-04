@@ -38,7 +38,7 @@ export interface Project {
   metrics?: Metric[];
   live?: { label: string; url: string };
   /** A real screenshot or results figure from the repo, in public/work/. */
-  image?: { src: string; caption: string };
+  image?: { src: string; caption: string; illustration?: boolean };
   /** Where my own code lives when it is on a branch of someone else's repo. */
   branch?: { label: string; url: string };
   context?: string;
@@ -104,12 +104,14 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'basesvm', name: 'BaseSVM', repo: gh('BaseSVM'), domain: 'research',
+    image: { src: 'basesvm-art.webp', caption: 'A linear SVM separating two classes with a maximum-margin boundary.', illustration: true },
     tagline: 'A linear support vector machine written from scratch, with no libraries.',
     description: 'It trains with hinge loss and L2 regularization by sub-gradient descent and explains every weight update. On the included data it finds the pass/fail boundary at about 4.4 hours of study.',
     stack: ['Python'],
   },
   {
     slug: 'fea-sweep', name: 'Parametric FEA Sweep', repo: gh('parametric-fea-sweep'), domain: 'research', status: 'In progress',
+    image: { src: 'fea-sweep-art.webp', caption: 'The planned analysis: stress along a loaded cantilever beam.', illustration: true },
     tagline: 'Automated stress analysis of a cantilever beam, checked against beam theory.',
     description: 'The plan: build the beam in FreeCAD, solve it with CalculiX, refine the mesh until results change by less than 1%, then sweep length, cross-section and load. The folder structure is in place; the model and scripts are next.',
     stack: ['FreeCAD', 'CalculiX', 'Python'],
@@ -148,6 +150,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'webmcp-forge', name: 'WebMCP Forge', repo: gh('CockPit'), domain: 'agents',
+    image: { src: 'webmcp-forge-art.webp', caption: 'Generated WebMCP tools, each checked and marked safe or unsafe.', illustration: true },
     context: 'WebMCP Challenge',
     tagline: 'Generates WebMCP tools for a web app, then tests which ones are safe for an agent.',
     description:
@@ -159,6 +162,7 @@ export const PROJECTS: Project[] = [
   // ---------------- Sensing & hardware ----------------
   {
     slug: 'wisp', name: 'WISP', repo: gh('WISP'), domain: 'sensing', featured: true,
+    image: { src: 'wisp-art.webp', caption: 'How WISP works: two ESP32 boards watch Wi-Fi signals across a room; a fall shows up as a spike in channel amplitude.', illustration: true },
     tagline: 'Detects a person falling from changes in Wi-Fi signals, using two ESP32 boards.',
     description:
       'It reads Wi-Fi Channel State Information, scores it with an Isolation Forest and a small state machine, and raises an alert on a collapse. The goal is under one false alarm per week in a real home, because a fall detector that cries wolf gets switched off.',
@@ -179,6 +183,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'syrinx', name: 'Syrinx', repo: gh('Syrinx'), domain: 'sensing', featured: true,
+    image: { src: 'syrinx-art.webp', caption: 'Six vocal sounds, classified by an SVM on MFCC features, become media keys.', illustration: true },
     tagline: 'Controls music on a phone with sounds: shush to pause, whistle for louder.',
     description:
       'The laptop listens, detects when a sound starts, extracts MFCC features and classifies it with an SVM into six commands, then sends a media key to the phone. The link to the phone is swappable, so everything can be tested without hardware.',
@@ -199,6 +204,7 @@ export const PROJECTS: Project[] = [
   // ---------------- Apps ----------------
   {
     slug: 'datepilot', name: 'DatePilot', repo: gh('DatePilot'), domain: 'products', featured: true,
+    image: { src: 'datepilot-art.webp', caption: 'A plan for two: stops, budget and a rain backup, all inside one city.', illustration: true },
     tagline: 'Plans a date for two people in Chennai, Coimbatore or Madurai.',
     description:
       'Each person enters preferences privately and the app shows only what they share. An open-weight model reads taste and explains the picks; plain Python enforces budget, opening hours, diet, travel time and the city. Routes and weather come from free APIs.',
@@ -215,6 +221,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'phantomvoice', name: 'Phantom Voice', repo: gh('PhantomVoice'), domain: 'products',
+    image: { src: 'phantomvoice-art.webp', caption: 'Say a commitment once; it comes back as a reminder before the deadline.', illustration: true },
     tagline: 'A voice assistant whose only job is making sure I don’t forget things.',
     description: 'I say a task out loud once, from my laptop or phone. An LLM works out what I committed to and when, and a reminder loop pushes it to my phone in time.',
     stack: ['FastAPI', 'LLMs', 'faster-whisper', 'SQLite', 'ntfy'],
@@ -228,30 +235,35 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'medsmart', name: 'Med-Smart', repo: gh('Med-Smart'), domain: 'products',
+    image: { src: 'medsmart-art.webp', caption: 'Vitals are checked against safe ranges, and an alert goes to the caregiver.', illustration: true },
     tagline: 'A medication and health app for elderly people, their caregivers and doctors.',
     description: 'Doctors prescribe, elders log vitals, and readings outside safe ranges create alerts that n8n forwards by SMS, email or WhatsApp to the people linked to that elder.',
     stack: ['Flutter', 'Riverpod', 'Firebase', 'n8n'],
   },
   {
     slug: 'clas', name: 'CLAS', repo: gh('Personalised-Pedagogical-Assistant'), domain: 'products',
+    image: { src: 'clas-art.webp', caption: 'The live teacher view: understanding, engagement and plagiarism per session.', illustration: true },
     tagline: 'A classroom tool that checks whether students understood, not just whether they attended.',
     description: 'Answers are scored in three stages: keyword coverage, a check for copied question text, then Llama 3.1 for real understanding and AI-written text. Teachers get a report with common misconceptions after each session. An earlier version lives in cognitive-attendance-system.',
     stack: ['Streamlit', 'scikit-learn', 'Groq', 'Plotly'],
   },
   {
     slug: 'smart-file-organizer', name: 'Smart File Organizer', repo: gh('smart-file-organizer'), domain: 'products',
+    image: { src: 'smart-file-organizer-art.webp', caption: 'Files are read and sorted into folders by meaning; unsure ones go to Review.', illustration: true },
     tagline: 'Sorts the files in a folder by what they say, not just their extension.',
     description: 'It reads PDFs and documents, classifies them with keywords and sentence embeddings, sends unsure ones to a Review folder, and learns when you move a file. FAISS search lets you find files by meaning. Nothing leaves the computer.',
     stack: ['MiniLM', 'FAISS', 'watchdog', 'Ollama'],
   },
   {
     slug: 'yt-knowledge', name: 'YT Knowledge Assistant', repo: gh('yt-knowledge-assistant'), domain: 'products',
+    image: { src: 'yt-knowledge-art.webp', caption: 'Ask a question about a video and get an answer with a timestamp.', illustration: true },
     tagline: 'Answers questions about a YouTube video from its transcript.',
     description: 'It uses captions when they exist and Whisper when they don’t, writes a structured summary, and answers questions using only that video’s content.',
     stack: ['FastAPI', 'Groq', 'Llama 3.3', 'FastEmbed'],
   },
   {
     slug: 'rag-browser', name: 'rag-browser-ai', repo: gh('rag-browser-ai'), domain: 'products',
+    image: { src: 'rag-browser-art.webp', caption: 'Pages are fetched, cleaned, chunked and embedded, then answered with sources.', illustration: true },
     tagline: 'A RAG pipeline that searches the web itself before answering.',
     description: 'A visible Playwright browser searches, reads the top pages, and stores cleaned chunks in ChromaDB. A local Llama answers from those chunks and cites its sources. The knowledge base grows with every run.',
     stack: ['Playwright', 'ChromaDB', 'Ollama'],
@@ -288,6 +300,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'spatialauth', name: 'spatialAuth', repo: gh('spatialAuth'), domain: 'team', featured: true,
+    image: { src: 'spatialauth-art.webp', caption: 'The room’s Wi-Fi, sound and magnetic signature becomes the login key.', illustration: true },
     context: 'Winner · Hack-N-Droid 2.0 · VIT Chennai · March 2026',
     tagline: 'Logs you in only inside a room it recognises, using the room itself as the key.',
     description: 'Every room has its own mix of Wi-Fi signal strengths, sound reflections and magnetic readings. The Android app captures them as an 11-feature signature, and the backend decides whether the phone is in the registered room.',
@@ -298,7 +311,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'synapse-xr', name: 'Synapse XR', repo: gh('Synapse_XR'), domain: 'team',
-    image: { src: 'synapse-xr.webp', caption: 'Output from the YOLOv8 model I trained for the AR overlay.' },
+    image: { src: 'synapse-xr-art.webp', caption: 'How the AR view works: the expert’s tracked hand is mirrored as a hologram over a part my YOLOv8 model has detected.', illustration: true },
     context: 'DevsHouse · GDG on Campus VIT Chennai',
     tagline: 'A remote expert guides a worker through AR, with holographic 3D hands.',
     description: 'The expert’s hand movements, from a webcam or an ESP32 glove, are streamed into the worker’s Unity AR view, with object detection and safety checks on top.',
@@ -316,6 +329,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'showonce', name: 'ShowOnce', repo: gh('ShowOnce'), domain: 'team',
+    image: { src: 'showonce-art.webp', caption: 'A wrong first patch fails verification, the checkpoint is restored, the second passes.', illustration: true },
     tagline: 'Show an agent a task once; it turns that into a checked, repeatable workflow.',
     description: 'A walkthrough becomes a workflow contract. Each step is traced and verified, and failures are recovered from saved checkpoints. The live demo takes an issue from Slack to Linear and closes it only when the test passes.',
     role: 'I wrote 24 of 43 commits: the Slack-to-Linear pipeline, encrypted secrets, a setup checker, offline tests and the recovery timeline view.',
@@ -323,6 +337,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'codebase', name: 'CodeBase', repo: gh('CodeBase'), domain: 'team',
+    image: { src: 'codebase-art.webp', caption: 'Ask where something is handled and get the files that matter.', illustration: true },
     tagline: 'Connect a GitHub repo and ask questions about its code.',
     description: 'A code-intelligence platform for understanding unfamiliar repositories: structure, search and dependencies, explained by an LLM.',
     role: 'I wrote 15 of 27 commits: GitHub authentication, clear rate-limit and error messages, request validation, and a dashboard drawn from the real GitHub data.',
@@ -330,6 +345,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'webmcp-codex', name: 'WebMCP Forge (Codex edition)', repo: gh('CockPit-Codex'), domain: 'team',
+    image: { src: 'webmcp-codex-art.webp', caption: 'The same tool checks, run against a safe test target.', illustration: true },
     context: 'with fawaz_ah',
     tagline: 'A second version of WebMCP Forge that runs the agent against safe test targets.',
     description: 'Depending on the input, the agent runs against your own app, a mock built from an OpenAPI spec, or nothing at all for third-party sites.',
@@ -338,6 +354,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'weatherguard', name: 'WeatherGuard', repo: gh('SIH-137'), domain: 'team',
+    image: { src: 'weatherguard-art.webp', caption: 'Weather risk around you, and the safest direction to move.', illustration: true },
     context: 'Smart India Hackathon · SIH-137',
     tagline: 'Shows the safest direction to move in extreme weather, and the nearest hospital or police station.',
     description: 'It reads the weather around you, works out which direction is safest, and finds shelters that way on a map.',
@@ -346,6 +363,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'hawkeye', name: 'Hawkeye', repo: gh('Hawkeye'), domain: 'team',
+    image: { src: 'hawkeye-art.webp', caption: 'Vision, audio and motion signals fused into one risk score.', illustration: true },
     tagline: 'Real-time safety monitoring from video, audio and crowd movement.',
     description: 'YOLO detects weapons, fire and falls, audio models detect gunshots and screams, and optical flow spots crowd panic. A fusion engine scores the risk and explains each alert with a replay and heatmap.',
     role: 'I pushed the initial codebase; the team built on it.',
