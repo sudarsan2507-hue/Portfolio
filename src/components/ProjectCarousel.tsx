@@ -146,12 +146,40 @@ function Ring({ projects, selected, onSelect, reduced, spin }: { projects: Proje
     camera.lookAt(0, 0.15, radius * 0.7);
   }, [camera, size, radius]);
 
+  // When a project opens: turn its card to the front, slide the ring left (wide screens),
+  // and pull that card forward so it sits beside the details panel.
+  const selIndex = selected ? projects.findIndex((p) => p.slug === selected.slug) : -1;
+  useEffect(() => {
+    if (selIndex < 0) return;
+    const target = -(selIndex / n) * Math.PI * 2;
+    const turns = Math.round((spin.current - target) / (Math.PI * 2));
+    spin.current = target + turns * Math.PI * 2;
+  }, [selIndex, n, spin]);
+  const cards = useRef<(THREE.Group | null)[]>([]);
+  const offset = useRef(0);
+
   useFrame((_, dt) => {
     if (!group.current) return;
     const auto = reduced || hover || selected ? 0 : dt * 0.08;
     spin.current += auto;
     rot.current += (spin.current - rot.current) * 0.08;
     group.current.rotation.y = rot.current;
+    const wide = size.width / size.height > 1.2;
+    const tx = selected && wide ? -radius * 0.16 : 0;
+    offset.current += (tx - offset.current) * 0.08;
+    group.current.position.x = offset.current;
+    cards.current.forEach((g, i) => {
+      if (!g) return;
+      const on = i === selIndex;
+      const k = on ? 1 : 0;
+      const sc = g.scale.x + ((on ? 1.22 : selected ? 0.88 : 1) - g.scale.x) * 0.1;
+      g.scale.setScalar(sc);
+      const a = (i / n) * Math.PI * 2;
+      const r = radius + k * 0.9;
+      g.position.x += (Math.sin(a) * r - g.position.x) * 0.1;
+      g.position.z += (Math.cos(a) * r - g.position.z) * 0.1;
+      g.position.y += ((on ? 0.15 : Math.sin(i * 1.7) * 0.25) - g.position.y) * 0.1;
+    });
   });
 
   return (
@@ -160,9 +188,9 @@ function Ring({ projects, selected, onSelect, reduced, spin }: { projects: Proje
         const a = (i / n) * Math.PI * 2;
         const active = hover === p.slug || selected?.slug === p.slug;
         return (
-          <group key={p.slug} position={[Math.sin(a) * radius, Math.sin(i * 1.7) * 0.25, Math.cos(a) * radius]} rotation={[0, a, 0]}>
+          <group key={p.slug} ref={(g) => (cards.current[i] = g)} position={[Math.sin(a) * radius, Math.sin(i * 1.7) * 0.25, Math.cos(a) * radius]} rotation={[0, a, 0]}>
             <mesh
-              scale={active ? 1.08 : 1}
+              scale={hover === p.slug && selected?.slug !== p.slug ? 1.06 : 1}
               onPointerOver={(e: ThreeEvent<PointerEvent>) => {
                 e.stopPropagation();
                 setHover(p.slug);
@@ -181,7 +209,7 @@ function Ring({ projects, selected, onSelect, reduced, spin }: { projects: Proje
               <meshBasicMaterial key={textures[p.slug] ? 'tex' : 'blank'} map={textures[p.slug] ?? null} color={textures[p.slug] ? '#ffffff' : '#141a2e'} side={THREE.DoubleSide} toneMapped={false} />
             </mesh>
             {active && (
-              <mesh position={[0, 0, -0.01]} scale={1.08}>
+              <mesh position={[0, 0, -0.01]} scale={1.03}>
                 <planeGeometry args={[CARD_W + 0.08, CARD_H + 0.08]} />
                 <meshBasicMaterial color={domainById[p.domain].color} side={THREE.DoubleSide} toneMapped={false} />
               </mesh>
