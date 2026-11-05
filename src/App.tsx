@@ -4,7 +4,7 @@ import Lenis from 'lenis';
 import { ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, MousePointer2, Trophy, X } from 'lucide-react';
 import type { SearchStats } from './three/stations/SearchGraph';
 import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
-import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
+import { Avatar, Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
 import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
@@ -442,8 +442,13 @@ function Contact() {
     <section id="contact" className="contact">
       <div className="wrap">
         <Reveal>
+          <div className="contact-head">
+            <Avatar size={176} />
+            <div>
           <div className="mono-label"><span className="ch">CH.08</span> Contact</div>
           <h2 className="contact-title">Want to work together? <em>Get in touch.</em></h2>
+        </div>
+          </div>
         </Reveal>
         <Reveal delay={0.1}>
           <div className="social-grid">

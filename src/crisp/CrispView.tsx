@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
+import { Avatar } from '../components/ui';
 import { CREDENTIALS, DATASET, domainById, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
@@ -40,6 +41,7 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
       {/* -------- profile column -------- */}
       <aside className="cx-profile">
         <div className="cx-profile-inner">
+          <Avatar size={112} className="cx-avatar" />
           <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
           <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
           <p className="cx-pitch">

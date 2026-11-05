@@ -103,3 +103,20 @@ export function ProjectLinks({ project, size = 'sm' }: { project: Project; size?
     </div>
   );
 }
+
+/** My photo in a slowly turning gradient ring, with a dot orbiting it. */
+export function Avatar({ size = 120, className }: { size?: number; className?: string }) {
+  return (
+    <motion.span
+      className={cn('avatar', className)}
+      style={{ ['--s' as string]: `${size}px` }}
+      initial={{ opacity: 0, scale: 0.85, filter: 'blur(10px)' }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+    >
+      <span className="avatar-ring" aria-hidden />
+      <span className="avatar-orbit" aria-hidden><i /></span>
+      <img src={`${import.meta.env.BASE_URL}work/sudarsan.webp`} alt="Sudarsan Ravichandran" width={size} height={size} />
+    </motion.span>
+  );
+}

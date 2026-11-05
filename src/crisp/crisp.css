@@ -153,3 +153,5 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .crisp .cx-more-wins { display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 720px) { .crisp .cx-more-wins { grid-template-columns: 1fr 1fr; } }
 .crisp .cx-more-wins .cx-block { margin-top: 12px; }
+
+.crisp .cx-avatar { margin-bottom: 26px; margin-left: 10px; margin-top: 10px; }
