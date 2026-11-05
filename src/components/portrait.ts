@@ -67,10 +67,16 @@ export function loadPortrait(count: number, width = 3.4): Promise<PortraitPoints
         positions[k * 3 + 2] = (l - 0.45) * 0.7;
         // lift the colours a little so they glow against the dark page
         // dark pixels (hair, shirt) become dim blue-violet points instead of vanishing into the page
-        const lift = Math.max(0, 0.3 - l) * 1.3;
-        colors[k * 3] = Math.min(1, (data[i] / 255) * 1.15 + 0.03 + lift * 0.35);
-        colors[k * 3 + 1] = Math.min(1, (data[i + 1] / 255) * 1.15 + 0.03 + lift * 0.45);
-        colors[k * 3 + 2] = Math.min(1, (data[i + 2] / 255) * 1.15 + 0.06 + lift * 0.9);
+        // boost saturation, and tint the dark areas with the site's cyan-violet so it reads as colourful
+        const r0 = data[i] / 255, g0 = data[i + 1] / 255, b0 = data[i + 2] / 255;
+        const sat = 1.7;
+        let r1 = l + (r0 - l) * sat, g1 = l + (g0 - l) * sat, b1 = l + (b0 - l) * sat;
+        const dark = Math.max(0, 0.38 - l) * 2.2;
+        const hue = (y / S) * 0.8 + (x / S) * 0.2; // cyan at the top, violet/pink lower down
+        r1 += dark * (0.15 + hue * 0.75); g1 += dark * (0.75 - hue * 0.55); b1 += dark * 1.0;
+        colors[k * 3] = Math.min(1, r1 * 1.2 + 0.03);
+        colors[k * 3 + 1] = Math.min(1, g1 * 1.2 + 0.03);
+        colors[k * 3 + 2] = Math.min(1, b1 * 1.2 + 0.05);
       }
       resolve({ positions, colors, count });
     };

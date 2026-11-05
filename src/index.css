@@ -486,9 +486,12 @@ section[id] { scroll-margin-top: 72px; }
 .portrait-photo {
   position: absolute; top: 3.35%; left: 3.35%; width: 93.3%; height: 93.3%; max-width: none; object-fit: cover; pointer-events: none;
   opacity: var(--photo);
+  filter: saturate(1.6) contrast(1.1) brightness(1.08);
   -webkit-mask-image: radial-gradient(ellipse 50% 56% at 50% 46%, #000 62%, transparent 100%);
   mask-image: radial-gradient(ellipse 50% 56% at 50% 46%, #000 62%, transparent 100%);
 }
 @media (hover: none) { .portrait.settled .portrait-photo { opacity: 1; transition: opacity 1s ease; } }
 .portrait.settled .portrait-photo { transition: opacity .6s ease; }
 @media (prefers-reduced-motion: reduce) { .portrait .portrait-photo { opacity: 1; } }
+
+.contact-head .portrait { filter: drop-shadow(0 0 40px rgba(167,139,250,.35)); }

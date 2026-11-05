@@ -167,7 +167,7 @@ export default function ParticlePortrait({ reduced = false, count = 26000, point
           <Points data={data} visible={visible && active} reduced={reduced} size={pointSize} host={box} />
         </Canvas>
       )}
-      <img className="portrait-photo" src={`${import.meta.env.BASE_URL}work/sudarsan.webp`} alt="" aria-hidden />
+      <img className="portrait-photo" src={`${import.meta.env.BASE_URL}work/sudarsan-color.webp`} alt="" aria-hidden />
       {hint && <span className="portrait-hint">move your cursor over me</span>}
     </div>
   );
