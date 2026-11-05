@@ -1,5 +1,13 @@
 # Sudarsan Ravichandran · Portfolio
 
+**Live site: [sudarsan2507-hue.github.io/Portfolio](https://sudarsan2507-hue.github.io/Portfolio/)**
+
+| View | Link |
+|---|---|
+| Entrance, choose a view | [sudarsan2507-hue.github.io/Portfolio](https://sudarsan2507-hue.github.io/Portfolio/) |
+| Crisp, one page | [sudarsan2507-hue.github.io/Portfolio/#crisp](https://sudarsan2507-hue.github.io/Portfolio/#crisp) |
+| Detailed, full 3D tour | [sudarsan2507-hue.github.io/Portfolio/#detailed](https://sudarsan2507-hue.github.io/Portfolio/#detailed) |
+
 My portfolio site. It opens on a 3D entrance where you pick a view; the particles fold into a cube
 (Crisp) or a galaxy (Detailed) as you hover, then warp past the camera into the view you chose.
 
