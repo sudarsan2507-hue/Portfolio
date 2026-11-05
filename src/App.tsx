@@ -22,7 +22,7 @@ const SOCIAL = [
   { label: 'IEEE Xplore', href: LINKS.ieee, icon: BookOpen },
 ];
 
-export default function App() {
+export default function DetailedView({ onSwitch }: { onSwitch: (m: 'crisp' | 'gate') => void }) {
   const reduced = useReducedMotion();
   const [stats, setStats] = useState<SearchStats>({ run: 1, deadEnds: 0, remembered: 0 });
   const [current, setCurrent] = useState(0);
@@ -55,11 +55,11 @@ export default function App() {
         <World onStats={setStats} reduced={reduced} />
       </Suspense>
 
-      <Nav />
+      <Nav onSwitch={onSwitch} />
       <Rail current={current} />
 
       <main className="relative z-10">
-        <Hero stats={stats} />
+        <Hero stats={stats} onSwitch={onSwitch} />
 
         <Chapter id="research" n={1} kicker="Research" title={<>What I study: <em>how systems learn from failure.</em></>}>
           <p className="lede">
@@ -147,12 +147,12 @@ export default function App() {
 
 /* ---------------------------------------------------------------- */
 
-function Nav() {
+function Nav({ onSwitch }: { onSwitch: (m: 'crisp' | 'gate') => void }) {
   return (
     <header className="nav">
-      <a href="#top" className="brand">Sudarsan <span>Ravichandran</span></a>
+      <a href="#top" className="brand" onClick={(e) => { e.preventDefault(); onSwitch('gate'); }} title="Back to the start">Sudarsan <span>Ravichandran</span></a>
       <nav className="nav-links">
-        <a href="./short/" className="short-link" title="One-page version"><span>1-page version</span></a>
+        <button onClick={() => onSwitch('crisp')} className="short-link" title="Switch to the crisp one-page view"><span>Crisp view</span></button>
         {SOCIAL.map((s) => (
           <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label}>
             <s.icon className="h-4 w-4" />
@@ -184,7 +184,7 @@ const HIGHLIGHTS = [
   { icon: Award, label: 'Kaggle dataset', detail: 'ISIC 2019, with DOI', href: DATASET.url },
 ];
 
-function Hero({ stats }: { stats: SearchStats }) {
+function Hero({ stats, onSwitch }: { stats: SearchStats; onSwitch: (m: 'crisp' | 'gate') => void }) {
   // Dead ends hit in each finished run, newest last. Falling bars = the search learning.
   const [history, setHistory] = useState<number[]>([]);
   const last = useRef(stats);
@@ -225,7 +225,7 @@ function Hero({ stats }: { stats: SearchStats }) {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="actions">
           <a href="#research" className="btn btn-solid">See my work ↓</a>
           <a href="#universe" className="btn">All projects</a>
-          <a href="./short/" className="btn">Short version</a>
+          <button onClick={() => onSwitch('crisp')} className="btn">Crisp view</button>
         </motion.div>
         <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }} className="highlights">
           {HIGHLIGHTS.map((h) => (
