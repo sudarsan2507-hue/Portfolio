@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { motion } from 'motion/react';
-import { ArrowRight, BookOpen, Database, GraduationCap, Trophy } from 'lucide-react';
+import { ArrowRight, Award, BookOpen, Database, Globe, GraduationCap, Trophy } from 'lucide-react';
 import * as THREE from 'three';
 
 /*
@@ -231,10 +231,31 @@ function Stars() {
 
 const HIGHLIGHTS = [
   { icon: Trophy, label: 'Winner, Hack-N-Droid 2.0' },
+  { icon: Award, label: 'Finalist, ET AI Hackathon' },
+  { icon: Globe, label: 'Shortlisted, Junction Europe' },
   { icon: BookOpen, label: 'IEEE author' },
   { icon: GraduationCap, label: 'NIT Trichy research intern' },
   { icon: Database, label: 'Kaggle dataset with DOI' },
 ];
+
+/** Small live previews of each view, drawn in CSS so they stay crisp at any size. */
+function CrispPreview() {
+  return (
+    <span className="pv pv-crisp" aria-hidden>
+      <i className="pv-col"><b /><b /><b /></i>
+      <i className="pv-main"><b /><b /><b /><b className="pv-grid" /></i>
+    </span>
+  );
+}
+function DetailedPreview() {
+  return (
+    <span className="pv pv-detailed" aria-hidden>
+      {['Research', 'IEEE paper', 'Agent safety', 'Sensing', 'Dataset', 'Universe'].map((c, i) => (
+        <i key={c} style={{ ['--i' as string]: i }}>{c}</i>
+      ))}
+    </span>
+  );
+}
 
 /**
  * interactive: show the chooser. When false the gate is only used as the 3D transition
@@ -289,10 +310,13 @@ export default function Gate({
             </ul>
           </motion.header>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.8 }} className="gate-choices" role="group" aria-label="Choose a view">
-            {choices.map((c) => (
-              <button
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55, duration: 1 }} className={`gate-choices ${hover ? 'has-' + hover : ''}`} role="group" aria-label="Choose a view">
+            {choices.map((c, i) => (
+              <motion.button
                 key={c.id}
+                initial={{ opacity: 0, x: i === 0 ? -40 : 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.1, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                 className={`gate-choice ${c.id} ${hover === c.id ? 'on' : ''}`}
                 onPointerEnter={() => setHover(c.id)}
                 onPointerLeave={() => setHover(null)}
@@ -301,11 +325,14 @@ export default function Gate({
                 onClick={() => onChoose(c.id)}
                 disabled={!!warpTo}
               >
-                <span className="gc-kicker">{c.kicker}</span>
-                <span className="gc-title">{c.title} <ArrowRight className="h-5 w-5" /></span>
+                <span className="gc-kicker"><span className="gc-num">0{i + 1}</span>{c.kicker}</span>
+                <span className="gc-title" data-text={c.title}>{c.title}</span>
                 <span className="gc-body">{c.body}</span>
-              </button>
+                {c.id === 'crisp' ? <CrispPreview /> : <DetailedPreview />}
+                <span className="gc-go">Enter <ArrowRight className="h-4 w-4" /></span>
+              </motion.button>
             ))}
+            <span className="gate-or" aria-hidden>or</span>
           </motion.div>
           <p className="gate-hint">Hover or tap a view to preview it. You can switch at any time.</p>
         </div>
