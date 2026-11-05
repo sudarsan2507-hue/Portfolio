@@ -4,12 +4,13 @@ import Lenis from 'lenis';
 import { ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, MousePointer2, Trophy, X } from 'lucide-react';
 import type { SearchStats } from './three/stations/SearchGraph';
 import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
-import { Avatar, Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
+import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
 import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
 const World = lazy(() => import('./three/World'));
 const ProjectCarousel = lazy(() => import('./components/ProjectCarousel'));
+const ParticlePortrait = lazy(() => import('./components/ParticlePortrait'));
 const imageUrl = (file: string) => `${import.meta.env.BASE_URL}work/${file}`;
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -443,11 +444,11 @@ function Contact() {
       <div className="wrap">
         <Reveal>
           <div className="contact-head">
-            <Avatar size={176} />
-            <div>
+            <div className="contact-copy">
           <div className="mono-label"><span className="ch">CH.08</span> Contact</div>
           <h2 className="contact-title">Want to work together? <em>Get in touch.</em></h2>
         </div>
+            <Suspense fallback={null}><ParticlePortrait /></Suspense>
           </div>
         </Reveal>
         <Reveal delay={0.1}>

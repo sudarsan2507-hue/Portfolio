@@ -472,4 +472,11 @@ section[id] { scroll-margin-top: 72px; }
 .avatar:hover .avatar-ring { animation-duration: 2.5s; }
 @keyframes av-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .avatar-ring, .avatar-orbit { animation: none; } }
-.contact-head { display: flex; flex-wrap: wrap; align-items: center; gap: 28px 40px; }
+.contact-head { display: grid; grid-template-columns: 1fr; align-items: center; gap: 12px 40px; }
+@media (min-width: 900px) { .contact-head { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+.contact-copy { min-width: 0; }
+.portrait { position: relative; width: 100%; max-width: 540px; aspect-ratio: 1 / 1; justify-self: center; cursor: crosshair; }
+.contact-head .portrait::before { content: ""; position: absolute; inset: -6%; border-radius: 50%; background: radial-gradient(closest-side, rgba(6,7,13,0.97) 55%, rgba(6,7,13,0.75) 75%, transparent); pointer-events: none; }
+.portrait canvas { touch-action: pan-y; }
+.portrait-hint { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); pointer-events: none; white-space: nowrap; }
+@media (hover: none) { .portrait-hint { display: none; } }

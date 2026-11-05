@@ -22,8 +22,11 @@ const vert = /* glsl */ `
   uniform float uTime;
   uniform float uSize;
   uniform float uPixel;
+  uniform float uFade;
   varying vec3 vColor;
+  varying float vFade;
   void main() {
+    vFade = uFade;
     float lag = aRand * 0.4;
     float m = clamp((uMix - lag) / (1.0 - lag), 0.0, 1.0);
     m = m * m * (3.0 - 2.0 * m);
@@ -41,11 +44,12 @@ const vert = /* glsl */ `
 
 const frag = /* glsl */ `
   varying vec3 vColor;
+  varying float vFade;
   void main() {
     float r = length(gl_PointCoord - 0.5);
     if (r > 0.5) discard;
     float a = smoothstep(0.5, 0.0, r);
-    gl_FragColor = vec4(vColor * (0.55 + a), a);
+    gl_FragColor = vec4(vColor * (0.55 + a) * vFade, a * vFade);
   }
 `;
 
@@ -155,7 +159,7 @@ function Cloud() {
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      uniforms: { uMix: { value: 0 }, uTime: { value: 0 }, uSize: { value: 22 }, uPixel: { value: Math.min(window.devicePixelRatio, 1.75) } },
+      uniforms: { uFade: { value: 0 }, uMix: { value: 0 }, uTime: { value: 0 }, uSize: { value: 22 }, uPixel: { value: Math.min(window.devicePixelRatio, 1.75) } },
     });
     return { geom: g, mat: m };
   }, [all]);
@@ -178,6 +182,9 @@ function Cloud() {
       geom.getAttribute('aTo').needsUpdate = true;
     }
     mat.uniforms.uMix.value = p - i;
+    // on wide screens my portrait owns the slot at the top of the page; the cloud fades in after
+    const fadeTarget = size.width >= 960 ? Math.min(1, Math.max(0, (window.scrollY - 120) / 260)) : 1;
+    mat.uniforms.uFade.value += (fadeTarget - mat.uniforms.uFade.value) * 0.12;
     mat.uniforms.uTime.value = state.clock.getElapsedTime();
     if (group.current) {
       const t = state.clock.getElapsedTime();

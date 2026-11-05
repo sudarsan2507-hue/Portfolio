@@ -1,6 +1,5 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
-import { Avatar } from '../components/ui';
 import { CREDENTIALS, DATASET, domainById, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
@@ -9,6 +8,7 @@ import { CREDENTIALS, DATASET, domainById, HACKATHON, MORE_WINS, LINKS, PEOPLE, 
  */
 
 const CrispWorld = lazy(() => import('./CrispWorld'));
+const ParticlePortrait = lazy(() => import('../components/ParticlePortrait'));
 const img = (file: string) => `${import.meta.env.BASE_URL}work/${file}`;
 const TOP = ['glass-armor', 'graderag', 'aegis', 'spatialauth', 'choketap', 'hydrofuse'];
 const top = TOP.map((s) => PROJECTS.find((p) => p.slug === s)!).filter(Boolean);
@@ -30,6 +30,14 @@ const WINS = [
 ];
 
 export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'gate') => void }) {
+  // at the top of the page the slot shows my portrait; scrolling scatters it and the cloud takes over
+  const [atTop, setAtTop] = useState(true);
+  useEffect(() => {
+    const on = () => setAtTop(window.scrollY < 160);
+    on();
+    window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, []);
   const sup = PEOPLE[0];
   const mentor = PEOPLE[1];
   return (
@@ -41,7 +49,6 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
       {/* -------- profile column -------- */}
       <aside className="cx-profile">
         <div className="cx-profile-inner">
-          <Avatar size={112} className="cx-avatar" />
           <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
           <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
           <p className="cx-pitch">
@@ -59,7 +66,11 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
               </li>
             ))}
           </ul>
-          <div className="cloud-slot" aria-hidden />
+          <div className={`cloud-slot ${atTop ? 'at-top' : ''}`}>
+            <Suspense fallback={null}>
+              <ParticlePortrait className="cx-slot-portrait" count={16000} pointSize={10} hint={false} active={atTop} />
+            </Suspense>
+          </div>
           <button className="cx-full-link" onClick={() => onSwitch('detailed')}>
             <span>
               <b>See the full 3D portfolio</b>
