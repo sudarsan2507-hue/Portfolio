@@ -1,13 +1,14 @@
-import { ArrowUpRight, Award, BookOpen, Database, Github, GraduationCap, Linkedin, Trophy } from 'lucide-react';
+import { lazy, Suspense } from 'react';
+import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, GraduationCap, Linkedin, Trophy } from 'lucide-react';
 import { CREDENTIALS, DATASET, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
- * The one-page version: the strongest work, achievements, internship, paper and dataset.
- * Everything else lives in the full 3D portfolio at ../
+ * The crisp view: the strongest work, achievements, internship, paper and dataset on one page,
+ * over a particle cloud that changes shape section by section. The detailed view has everything else.
  */
 
-const FULL = '../';
-const img = (file: string) => `../work/${file}`;
+const CrispWorld = lazy(() => import('./CrispWorld'));
+const img = (file: string) => `${import.meta.env.BASE_URL}work/${file}`;
 const TOP = ['glass-armor', 'graderag', 'aegis', 'spatialauth', 'choketap', 'hydrofuse'];
 const top = TOP.map((s) => PROJECTS.find((p) => p.slug === s)!).filter(Boolean);
 
@@ -25,21 +26,25 @@ const WINS = [
   { icon: Database, value: 'DOI', label: 'Kaggle dataset', sub: '25,331 images' },
 ];
 
-export default function ShortApp() {
+export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'gate') => void }) {
   const sup = PEOPLE[0];
   const mentor = PEOPLE[1];
   return (
-    <div className="page">
+    <div className="crisp">
+      <Suspense fallback={null}>
+        <CrispWorld />
+      </Suspense>
+      <div className="cx-page">
       {/* -------- profile column -------- */}
-      <aside className="profile">
-        <div className="profile-inner">
-          <p className="eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
-          <h1 className="name">Sudarsan<br /><span>Ravichandran</span></h1>
-          <p className="pitch">
+      <aside className="cx-profile">
+        <div className="cx-profile-inner">
+          <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
+          <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
+          <p className="cx-pitch">
             I build AI that learns from <em>its mistakes</em>: failure-aware retrieval, guardrails for AI agents, and
             sensor hardware that measures its own false alarms.
           </p>
-          <ul className="social">
+          <ul className="cx-social">
             {SOCIAL.map((s) => (
               <li key={s.label}>
                 <a href={s.href} target="_blank" rel="noreferrer">
@@ -50,21 +55,23 @@ export default function ShortApp() {
               </li>
             ))}
           </ul>
-          <a className="full-link" href={FULL}>
+          <div className="cloud-slot" aria-hidden />
+          <button className="cx-full-link" onClick={() => onSwitch('detailed')}>
             <span>
               <b>See the full 3D portfolio</b>
               All {PROJECTS.length} projects, with interactive scenes
             </span>
             <ArrowUpRight className="h-5 w-5" />
-          </a>
+          </button>
+          <button className="cx-back-link" onClick={() => onSwitch('gate')}><ArrowLeft className="h-3.5 w-3.5" /> Back to the start</button>
         </div>
       </aside>
 
       {/* -------- content column -------- */}
-      <main className="content">
-        <section aria-label="Achievements" className="wins">
+      <main className="cx-content">
+        <section aria-label="Highlights" className="cx-wins" data-shape="0">
           {WINS.map((w) => (
-            <div key={w.label} className="win">
+            <div key={w.label} className="cx-win">
               <w.icon className="h-4 w-4" />
               <b>{w.value}</b>
               <span>{w.label}</span>
@@ -73,37 +80,37 @@ export default function ShortApp() {
           ))}
         </section>
 
-        <Section title="Research internship" kicker="NIT Tiruchirappalli · 18 May to 2 July 2026">
-          <article className="block">
+        <Section shape={1} title="Research internship" kicker="NIT Tiruchirappalli · 18 May to 2 July 2026">
+          <article className="cx-block">
             <h3>GradeRAG: Retrieval-Augmented Generation with Persistent Mistake Knowledge Graph for Cross-Question Failure Learning</h3>
             <p>
               A RAG pipeline that labels each wrong answer, stores it in a Mistake Knowledge Graph, and warns the model
               when a similar question comes up. Tested on HotpotQA and TriviaQA with three models. Rated
               <b> Excellent</b> on the completion certificate; the paper is under review.
             </p>
-            <div className="nums">
+            <div className="cx-nums">
               <div><b>+29.5</b><span>points exact match, GPT-4o-mini on HotpotQA</span></div>
               <div><b>87.5%</b><span>accuracy, up from 58.0%</span></div>
               <div><b>5 / 6</b><span>model and dataset pairs improved</span></div>
             </div>
-            <div className="people">
+            <div className="cx-people">
               <p><b>{sup.name}</b> {sup.title}. Supervisor.</p>
               <p><b>{mentor.name}</b> {mentor.title}. Day-to-day mentor.</p>
             </div>
           </article>
         </Section>
 
-        <Section title="Achievements" kicker="Hackathons and certifications">
-          <article className="block win-block">
-            <div className="mono"><Trophy className="mr-1 inline h-3.5 w-3.5" /> {HACKATHON.result} · {HACKATHON.date}</div>
+        <Section shape={2} title="Achievements" kicker="Hackathons and certifications">
+          <article className="cx-block cx-win-block">
+            <div className="cx-mono"><Trophy className="mr-1 inline h-3.5 w-3.5" /> {HACKATHON.result} · {HACKATHON.date}</div>
             <h3>{HACKATHON.name}</h3>
             <p>
               {HACKATHON.host}. Our project spatialAuth logs a phone in only inside a room it recognises. I built its
               authentication backend: a One-Class SVM per room and a FastAPI service.
             </p>
-            <p className="mono dim">Sponsors: {HACKATHON.sponsors.join(' · ')}</p>
+            <p className="cx-mono cx-dim">Sponsors: {HACKATHON.sponsors.join(' · ')}</p>
           </article>
-          <ul className="creds">
+          <ul className="cx-creds">
             {CREDENTIALS.filter((c) => !c.label.startsWith('Winner')).map((c) => (
               <li key={c.label}>
                 {c.url ? <a href={c.url} target="_blank" rel="noreferrer">{c.label}</a> : <span>{c.label}</span>}
@@ -113,56 +120,56 @@ export default function ShortApp() {
           </ul>
         </Section>
 
-        <Section title="Publication" kicker={`${PUBLICATION.venue} · ${PUBLICATION.publisher}`}>
-          <article className="block">
+        <Section shape={3} title="Publication" kicker={`${PUBLICATION.venue} · ${PUBLICATION.publisher}`}>
+          <article className="cx-block">
             <h3>{PUBLICATION.title}</h3>
-            <p className="authors">
+            <p className="cx-authors">
               {PUBLICATION.authors.map((a, i) => (
                 <span key={a}>
-                  <span className={a === 'Sudarsan Ravichandran' ? 'me' : undefined}>{a}</span>
+                  <span className={a === 'Sudarsan Ravichandran' ? 'cx-me' : undefined}>{a}</span>
                   {i < PUBLICATION.authors.length - 1 && ', '}
                 </span>
               ))}
             </p>
-            <a className="text-link" href={PUBLICATION.url} target="_blank" rel="noreferrer">Read on IEEE Xplore <ArrowUpRight className="h-4 w-4" /></a>
+            <a className="cx-text-link" href={PUBLICATION.url} target="_blank" rel="noreferrer">Read on IEEE Xplore <ArrowUpRight className="h-4 w-4" /></a>
           </article>
         </Section>
 
-        <Section title="Kaggle dataset" kicker="CC BY-NC 4.0 · DOI 10.34740/kaggle/dsv/20910302">
-          <article className="block">
+        <Section shape={4} title="Kaggle dataset" kicker="CC BY-NC 4.0 · DOI 10.34740/kaggle/dsv/20910302">
+          <article className="cx-block">
             <h3>{DATASET.title}</h3>
             <p>{DATASET.summary}</p>
-            <div className="nums">
+            <div className="cx-nums">
               {DATASET.metrics.map((m) => <div key={m.label}><b>{m.value}</b><span>{m.label}</span></div>)}
             </div>
-            <div className="split" aria-hidden>
-              <i className="tr" /><i className="va" /><i className="te" />
+            <div className="cx-split" aria-hidden>
+              <i className="cx-tr" /><i className="cx-va" /><i className="cx-te" />
             </div>
-            <p className="mono dim">train 20,308 · val 2,448 · test 2,575</p>
-            <a className="text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
+            <p className="cx-mono cx-dim">train 20,308 · val 2,448 · test 2,575</p>
+            <a className="cx-text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
           </article>
         </Section>
 
-        <Section title="Selected projects" kicker={`6 of ${PROJECTS.length}`}>
-          <div className="projects">
+        <Section shape={5} title="Selected projects" kicker={`6 of ${PROJECTS.length}`}>
+          <div className="cx-projects">
             {top.map((p) => {
               const d = domainById[p.domain];
               const m = p.metrics?.[0];
               return (
-                <article key={p.slug} className="proj" style={{ ['--c' as string]: d.color }}>
+                <article key={p.slug} className="cx-proj" style={{ ['--c' as string]: d.color }}>
                   {p.image && (
-                    <a href={p.repo} target="_blank" rel="noreferrer" className="proj-img">
+                    <a href={p.repo} target="_blank" rel="noreferrer" className="cx-proj-img">
                       <img src={img(p.image.src)} alt={p.image.caption} loading="lazy" />
                       {p.image.illustration && <span>Illustration</span>}
                     </a>
                   )}
-                  <div className="proj-body">
-                    <div className="mono" style={{ color: 'var(--c)' }}>{p.context ?? d.label}</div>
+                  <div className="cx-proj-body">
+                    <div className="cx-mono" style={{ color: 'var(--c)' }}>{p.context ?? d.label}</div>
                     <h3><a href={p.repo} target="_blank" rel="noreferrer">{p.name} <ArrowUpRight className="h-4 w-4" /></a></h3>
                     <p>{p.tagline}</p>
-                    {m && <p className="metric"><b>{m.value}</b> {m.label}</p>}
-                    {p.role && <p className="role"><b>My part.</b> {p.role}</p>}
-                    <p className="mono dim">{p.stack.slice(0, 4).join(' · ')}</p>
+                    {m && <p className="cx-metric"><b>{m.value}</b> {m.label}</p>}
+                    {p.role && <p className="cx-role"><b>My part.</b> {p.role}</p>}
+                    <p className="cx-mono cx-dim">{p.stack.slice(0, 4).join(' · ')}</p>
                   </div>
                 </article>
               );
@@ -170,27 +177,28 @@ export default function ShortApp() {
           </div>
         </Section>
 
-        <a className="full-cta" href={FULL}>
-          <span className="mono">The long version</span>
+        <button className="cx-full-cta" onClick={() => onSwitch('detailed')}>
+          <span className="cx-mono">The long version</span>
           <b>See all {PROJECTS.length} projects in the full 3D portfolio</b>
           <ArrowUpRight className="h-6 w-6" />
-        </a>
+        </button>
 
-        <footer className="foot mono dim">
+        <footer className="cx-foot cx-mono cx-dim">
           <span>© 2026 Sudarsan Ravichandran</span>
           <span><Award className="mr-1 inline h-3.5 w-3.5" />OCI Generative AI and Data Science Professional</span>
         </footer>
       </main>
+      </div>
     </div>
   );
 }
 
-function Section({ title, kicker, children }: { title: string; kicker: string; children: React.ReactNode }) {
+function Section({ title, kicker, shape, children }: { title: string; kicker: string; shape: number; children: React.ReactNode }) {
   return (
-    <section className="sec">
+    <section className="cx-sec" data-shape={shape}>
       <header>
         <h2>{title}</h2>
-        <p className="mono dim">{kicker}</p>
+        <p className="cx-mono cx-dim">{kicker}</p>
       </header>
       {children}
     </section>
