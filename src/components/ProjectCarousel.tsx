@@ -129,7 +129,7 @@ function useCardTextures(projects: Project[]) {
   return textures;
 }
 
-function Ring({ projects, selected, onSelect, reduced, spin }: { projects: Project[]; selected: Project | null; onSelect: (p: Project) => void; reduced: boolean; spin: React.MutableRefObject<number> }) {
+function Ring({ projects, selected, onSelect, reduced, spin }: { projects: Project[]; selected: Project | null; onSelect: (p: Project | null) => void; reduced: boolean; spin: React.MutableRefObject<number> }) {
   const textures = useCardTextures(projects);
   const group = useRef<THREE.Group>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -202,7 +202,8 @@ function Ring({ projects, selected, onSelect, reduced, spin }: { projects: Proje
               }}
               onClick={(e: ThreeEvent<MouseEvent>) => {
                 e.stopPropagation();
-                if (Math.abs(e.delta) < 6) onSelect(p);
+                // clicking the open card again closes it
+                if (Math.abs(e.delta) < 6) onSelect(selected?.slug === p.slug ? null : p);
               }}
             >
               <planeGeometry args={[CARD_W, CARD_H]} />
@@ -235,25 +236,31 @@ export default function ProjectCarousel({
 }: {
   projects: Project[];
   selected: Project | null;
-  onSelect: (p: Project) => void;
+  onSelect: (p: Project | null) => void;
   reduced: boolean;
   active?: boolean;
 }) {
   const spin = useRef(0);
   const drag = useRef<{ x: number; s: number } | null>(null);
+  const moved = useRef(false);
   const list = useMemo(() => projects, [projects]);
   return (
     <div
       className="h-full w-full"
       style={{ touchAction: 'pan-y', cursor: 'grab' }}
-      onPointerDown={(e) => (drag.current = { x: e.clientX, s: spin.current })}
+      onPointerDown={(e) => {
+        drag.current = { x: e.clientX, s: spin.current };
+        moved.current = false;
+      }}
       onPointerMove={(e) => {
-        if (drag.current) spin.current = drag.current.s + (e.clientX - drag.current.x) * 0.006;
+        if (!drag.current) return;
+        if (Math.abs(e.clientX - drag.current.x) > 6) moved.current = true;
+        spin.current = drag.current.s + (e.clientX - drag.current.x) * 0.006;
       }}
       onPointerUp={() => (drag.current = null)}
       onPointerLeave={() => (drag.current = null)}
     >
-      <Canvas frameloop={active ? 'always' : 'never'} camera={{ position: [0, 1.4, 12], fov: 45 }} dpr={[1, 1.75]} gl={{ antialias: true, alpha: true }}>
+      <Canvas onPointerMissed={() => { if (selected && !moved.current) onSelect(null); }} frameloop={active ? 'always' : 'never'} camera={{ position: [0, 1.4, 12], fov: 45 }} dpr={[1, 1.75]} gl={{ antialias: true, alpha: true }}>
         <fog attach="fog" args={['#06070d', 10, 26]} />
         <Ring projects={list} selected={selected} onSelect={onSelect} reduced={reduced} spin={spin} />
       </Canvas>
