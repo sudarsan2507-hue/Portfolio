@@ -152,6 +152,7 @@ function Nav() {
     <header className="nav">
       <a href="#top" className="brand">Sudarsan <span>Ravichandran</span></a>
       <nav className="nav-links">
+        <a href="./short/" className="short-link" title="One-page version"><span>1-page version</span></a>
         {SOCIAL.map((s) => (
           <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label}>
             <s.icon className="h-4 w-4" />
@@ -224,6 +225,7 @@ function Hero({ stats }: { stats: SearchStats }) {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="actions">
           <a href="#research" className="btn btn-solid">See my work ↓</a>
           <a href="#universe" className="btn">All projects</a>
+          <a href="./short/" className="btn">Short version</a>
         </motion.div>
         <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }} className="highlights">
           {HIGHLIGHTS.map((h) => (
@@ -323,6 +325,11 @@ function Universe() {
   const reduced = useReducedMotion();
   const [filter, setFilter] = useState<Domain | 'all'>('all');
   const [selected, setSelected] = useState<Project | null>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelected(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   const [ref, seen] = useInView<HTMLDivElement>('400px');
   const [box, visible] = useVisible<HTMLDivElement>('100px');
   const list = useMemo(() => (filter === 'all' ? PROJECTS : PROJECTS.filter((p) => p.domain === filter)), [filter]);
@@ -356,7 +363,7 @@ function Universe() {
         )}
         <AnimatePresence>
           {selected && (
-            <motion.aside key={selected.slug} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="u-panel" style={{ ['--c' as string]: domainById[selected.domain].color }}>
+            <motion.aside key={selected.slug} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="u-panel" data-lenis-prevent style={{ ['--c' as string]: domainById[selected.domain].color }}>
               <button onClick={() => setSelected(null)} className="u-close" aria-label="Close"><X className="h-4 w-4" /></button>
               {selected.image && (
                 <figure className="u-fig">

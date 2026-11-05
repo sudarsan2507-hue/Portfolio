@@ -253,7 +253,7 @@ em {
 .filter.on { background: var(--c); border-color: var(--c); color: var(--bg); }
 .u-panel {
   position: absolute; z-index: 10; right: 12px; bottom: 12px; left: 12px;
-  max-height: calc(100% - 24px); overflow-y: auto;
+  max-height: calc(100% - 24px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--c) 50%, transparent) transparent;
   border-radius: 22px; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
   background: rgba(8, 10, 20, 0.94); backdrop-filter: blur(14px);
   box-shadow: 0 30px 80px -20px color-mix(in srgb, var(--c) 35%, transparent);
@@ -367,3 +367,6 @@ section[id] { scroll-margin-top: 72px; }
 .spec-fig img { display: block; width: 100%; max-width: 100%; max-height: 260px; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); background: #0a0d1a; }
 .spec-fig figcaption { margin-top: 6px; font-size: 11.5px; line-height: 1.45; color: var(--faint); }
 .spec-thumb { display: block; margin-top: 8px; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; border-radius: 10px; border: 1px solid var(--line); background: #0a0d1a; }
+
+.nav-links a.short-link { color: var(--fg); border-color: var(--line); }
+@media (max-width: 480px) { .nav-links a.short-link { display: none; } }
