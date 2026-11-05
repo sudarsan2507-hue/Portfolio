@@ -183,7 +183,7 @@ function Cloud() {
     }
     mat.uniforms.uMix.value = p - i;
     // on wide screens my portrait owns the slot at the top of the page; the cloud fades in after
-    const fadeTarget = size.width >= 960 ? Math.min(1, Math.max(0, (window.scrollY - 120) / 260)) : 1;
+    const fadeTarget = 1;
     mat.uniforms.uFade.value += (fadeTarget - mat.uniforms.uFade.value) * 0.12;
     mat.uniforms.uTime.value = state.clock.getElapsedTime();
     if (group.current) {

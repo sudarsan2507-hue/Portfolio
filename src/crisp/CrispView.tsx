@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
 import { CREDENTIALS, DATASET, domainById, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
@@ -30,14 +30,6 @@ const WINS = [
 ];
 
 export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'gate') => void }) {
-  // at the top of the page the slot shows my portrait; scrolling scatters it and the cloud takes over
-  const [atTop, setAtTop] = useState(true);
-  useEffect(() => {
-    const on = () => setAtTop(window.scrollY < 160);
-    on();
-    window.addEventListener('scroll', on, { passive: true });
-    return () => window.removeEventListener('scroll', on);
-  }, []);
   const sup = PEOPLE[0];
   const mentor = PEOPLE[1];
   return (
@@ -49,6 +41,9 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
       {/* -------- profile column -------- */}
       <aside className="cx-profile">
         <div className="cx-profile-inner">
+          <Suspense fallback={<div className="cx-portrait" />}>
+            <ParticlePortrait className="cx-portrait" count={14000} pointSize={9} hint={false} />
+          </Suspense>
           <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
           <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
           <p className="cx-pitch">
@@ -66,11 +61,7 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
               </li>
             ))}
           </ul>
-          <div className={`cloud-slot ${atTop ? 'at-top' : ''}`}>
-            <Suspense fallback={null}>
-              <ParticlePortrait className="cx-slot-portrait" count={16000} pointSize={10} hint={false} active={atTop} />
-            </Suspense>
-          </div>
+          <div className="cloud-slot" aria-hidden />
           <button className="cx-full-link" onClick={() => onSwitch('detailed')}>
             <span>
               <b>See the full 3D portfolio</b>

@@ -55,7 +55,7 @@ const frag = /* glsl */ `
   }
 `;
 
-function Points({ data, visible, reduced, size }: { data: PortraitPoints; visible: boolean; reduced: boolean; size: number }) {
+function Points({ data, visible, reduced, size, host }: { data: PortraitPoints; visible: boolean; reduced: boolean; size: number; host: React.RefObject<HTMLDivElement | null> }) {
   const N = data.count;
   const { geom, mat } = useMemo(() => {
     const scatter = new Float32Array(N * 3);
@@ -118,12 +118,18 @@ function Points({ data, visible, reduced, size }: { data: PortraitPoints; visibl
     u.uAssemble.value = ph.v;
     void dt;
     u.uHover.value += ((hovering.current && !reduced ? 1 : 0) - u.uHover.value) * 0.12;
+    // once the particles have formed the face, the real photo fades in on top so it is sharp;
+    // hovering fades it back out to reveal the particles reacting to the cursor
+    const photo = Math.min(1, Math.max(0, (ph.v - 0.75) / 0.25)) * (1 - u.uHover.value * 0.85);
+    host.current?.style.setProperty('--photo', photo.toFixed(3));
     // pointer in the portrait's own coordinates
     const target = new THREE.Vector2((state.pointer.x * viewport.width) / 2, (state.pointer.y * viewport.height) / 2);
     (u.uMouse.value as THREE.Vector2).lerp(target, 0.25);
     if (group.current && !reduced) {
-      group.current.rotation.y += (state.pointer.x * 0.25 - group.current.rotation.y) * 0.05;
-      group.current.rotation.x += (-state.pointer.y * 0.15 - group.current.rotation.x) * 0.05;
+      // tilt only while hovering, so the particles line up with the photo at rest
+      const h = u.uHover.value;
+      group.current.rotation.y += (state.pointer.x * 0.25 * h - group.current.rotation.y) * 0.05;
+      group.current.rotation.x += (-state.pointer.y * 0.15 * h - group.current.rotation.x) * 0.05;
     }
   });
 
@@ -141,6 +147,13 @@ export default function ParticlePortrait({ reduced = false, count = 26000, point
   useEffect(() => {
     loadPortrait(count).then(setData).catch(() => {});
   }, [count]);
+  // safety net: whatever the frame rate, show the sharp photo a few seconds after it comes into view
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    if (!visible) return;
+    const id = window.setTimeout(() => setSettled(true), 3500);
+    return () => window.clearTimeout(id);
+  }, [visible]);
   useEffect(() => {
     if (!box.current) return;
     const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.25 });
@@ -148,12 +161,13 @@ export default function ParticlePortrait({ reduced = false, count = 26000, point
     return () => io.disconnect();
   }, []);
   return (
-    <div ref={box} className={`portrait ${className}`} role="img" aria-label="Portrait of Sudarsan Ravichandran, drawn in particles">
+    <div ref={box} className={`portrait ${settled ? 'settled' : ''} ${className}`} role="img" aria-label="Portrait of Sudarsan Ravichandran">
       {data && (
         <Canvas camera={{ position: [0, 0, 4.4], fov: 45 }} dpr={[1, 1.75]} frameloop={visible ? 'always' : 'demand'} gl={{ alpha: true, antialias: false }}>
-          <Points data={data} visible={visible && active} reduced={reduced} size={pointSize} />
+          <Points data={data} visible={visible && active} reduced={reduced} size={pointSize} host={box} />
         </Canvas>
       )}
+      <img className="portrait-photo" src={`${import.meta.env.BASE_URL}work/sudarsan.webp`} alt="" aria-hidden />
       {hint && <span className="portrait-hint">move your cursor over me</span>}
     </div>
   );

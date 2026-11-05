@@ -148,14 +148,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .crisp .cx-sec > header, .crisp .cx-block > p, .crisp .cx-nums, .crisp .cx-creds { position: relative; }
 
 .crisp .cloud-slot { flex: 1 1 auto; min-height: 0; }
-@media (min-width: 960px) { .crisp .cloud-slot { min-height: 290px; } }
+@media (min-width: 960px) { .crisp .cloud-slot { min-height: 200px; } }
 
 .crisp .cx-more-wins { display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 720px) { .crisp .cx-more-wins { grid-template-columns: 1fr 1fr; } }
 .crisp .cx-more-wins .cx-block { margin-top: 12px; }
 
 
-.crisp .cloud-slot { position: relative; display: grid; place-items: center; }
-.crisp .cx-slot-portrait { position: absolute; top: 50%; left: 50%; width: auto; height: 112%; max-width: none; transform: translate(-50%, -50%); opacity: 0; transition: opacity .8s ease; pointer-events: none; }
-.crisp .cloud-slot.at-top .cx-slot-portrait { opacity: 1; pointer-events: auto; }
-@media (max-width: 959px) { .crisp .cx-slot-portrait { display: none; } }
+.crisp .cx-portrait { position: relative; width: 210px; max-width: 60vw; aspect-ratio: 1 / 1; margin: -18px 0 4px -20px; }
+@media (min-width: 960px) { .crisp .cloud-slot { min-height: 220px; } }
