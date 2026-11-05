@@ -1,6 +1,11 @@
 # Sudarsan Ravichandran · Portfolio
 
-My portfolio site. Scrolling flies a camera through a 3D world with one scene per chapter of my work:
+My portfolio site. It opens on a 3D entrance where you pick a view; the particles fold into a cube
+(Crisp) or a galaxy (Detailed) as you hover, then warp past the camera into the view you chose.
+
+- **Crisp** (`#crisp`): one page with my top projects, achievements, internship, paper and dataset.
+  A particle cloud beside the text changes shape for each section.
+- **Detailed** (`#detailed`): scrolling flies a camera through a 3D world with one scene per chapter:
 
 | Chapter | 3D scene |
 |---|---|
@@ -29,7 +34,10 @@ Motion · Lenis
 | `src/three/World.tsx` | The fixed WebGL world: camera rig, star corridor, bloom, the chapter scenes |
 | `src/three/stations/` | One 3D scene per chapter |
 | `src/components/ProjectUniverse.tsx` | The interactive project constellation |
-| `src/App.tsx`, `src/index.css` | Page layout, copy and styles |
+| `src/Root.tsx` | Switches between the entrance, Crisp and Detailed, and runs the warp between them |
+| `src/gate/Gate.tsx` | The 3D entrance (a GPU particle shader) |
+| `src/crisp/` | The Crisp view and its scroll-morphing particle cloud |
+| `src/App.tsx`, `src/index.css` | The Detailed view: layout, copy and styles |
 
 Each 3D scene only animates while the camera is near it, and the page respects `prefers-reduced-motion`.
 
