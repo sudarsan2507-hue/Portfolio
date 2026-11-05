@@ -180,7 +180,7 @@ function Rail({ current }: { current: number }) {
 const HIGHLIGHTS = [
   { icon: Trophy, label: 'Winner', detail: 'Hack-N-Droid 2.0', href: LINKS.github + '/spatialAuth' },
   { icon: Award, label: 'Finalist', detail: 'ET AI Hackathon 2026', href: LINKS.github + '/Aegis' },
-  { icon: Globe, label: 'Shortlisted', detail: 'Junction, Europe', href: '#contact' },
+  { icon: Globe, label: 'Selected', detail: 'Junction, Europe', href: '#contact' },
   { icon: BookOpen, label: 'IEEE author', detail: 'Schottky TFETs, 2026', href: PUBLICATION.url },
   { icon: GraduationCap, label: 'Research intern', detail: 'NIT Trichy, NLP', href: LINKS.github + '/GradeRAG' },
   { icon: Award, label: 'Kaggle dataset', detail: 'ISIC 2019, with DOI', href: DATASET.url },

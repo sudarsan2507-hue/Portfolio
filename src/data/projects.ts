@@ -426,7 +426,7 @@ export const DATASET = {
 export const CREDENTIALS = [
   { label: 'Winner · Hack-N-Droid 2.0', detail: 'Android Club, VIT Chennai · Mar 2026', url: 'https://github.com/sudarsan2507-hue/spatialAuth' },
   { label: 'Finalist · ET AI Hackathon 2026', detail: 'Project Aegis AI · team of 4', url: 'https://github.com/sudarsan2507-hue/Aegis' },
-  { label: 'Shortlisted for Junction, Europe', detail: 'Selected from many applicants · 2026' },
+  { label: 'Selected for Junction, Europe', detail: 'Hand-picked from a global pool · 2026' },
   { label: 'IEEE author', detail: '1 publication · 2026', url: 'https://ieeexplore.ieee.org/author/607201746740566' },
   { label: 'NLP research intern, NIT Trichy', detail: 'May to July 2026 · rated Excellent', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
   { label: 'Kaggle dataset · ISIC 2019', detail: 'DOI 10.34740/kaggle/dsv/20910302', url: 'https://doi.org/10.34740/kaggle/dsv/20910302' },
@@ -456,9 +456,9 @@ export const MORE_WINS = [
     link: { label: 'Aegis AI on GitHub', url: 'https://github.com/sudarsan2507-hue/Aegis' },
   },
   {
-    result: 'Shortlisted',
+    result: 'Selected to compete',
     name: 'Junction, Europe',
-    body: 'Accepted to attend Junction, one of Europe’s largest hackathons, after being shortlisted from a large pool of applicants worldwide.',
+    body: 'Hand-picked from a global applicant pool to build at Junction, one of Europe’s largest hackathons.',
   },
 ];
 

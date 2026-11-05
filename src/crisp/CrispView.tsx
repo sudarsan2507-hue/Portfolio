@@ -22,7 +22,7 @@ const SOCIAL = [
 const WINS = [
   { icon: Trophy, value: '1st', label: 'Hack-N-Droid 2.0', sub: 'VIT Chennai · Mar 2026' },
   { icon: Award, value: 'Final', label: 'ET AI Hackathon', sub: 'Aegis AI · 2026' },
-  { icon: Globe, value: 'EU', label: 'Junction shortlist', sub: 'Selected to attend' },
+  { icon: Globe, value: 'EU', label: 'Selected for Junction', sub: 'Hand-picked, global pool' },
   { icon: BookOpen, value: 'IEEE', label: 'Published author', sub: 'Schottky TFETs · 2026' },
   { icon: GraduationCap, value: 'NIT', label: 'Research intern', sub: 'Trichy · rated Excellent' },
   { icon: Database, value: 'DOI', label: 'Kaggle dataset', sub: '25,331 images' },
@@ -122,7 +122,7 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
             ))}
           </div>
           <ul className="cx-creds">
-            {CREDENTIALS.filter((c) => !/^(Winner|Finalist|Shortlisted)/.test(c.label)).map((c) => (
+            {CREDENTIALS.filter((c) => !/^(Winner|Finalist|Selected)/.test(c.label)).map((c) => (
               <li key={c.label}>
                 {c.url ? <a href={c.url} target="_blank" rel="noreferrer">{c.label}</a> : <span>{c.label}</span>}
                 <small>{c.detail}</small>

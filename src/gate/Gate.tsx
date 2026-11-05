@@ -232,7 +232,7 @@ function Stars() {
 const HIGHLIGHTS = [
   { icon: Trophy, label: 'Winner, Hack-N-Droid 2.0' },
   { icon: Award, label: 'Finalist, ET AI Hackathon' },
-  { icon: Globe, label: 'Shortlisted, Junction Europe' },
+  { icon: Globe, label: 'Selected for Junction, Europe' },
   { icon: BookOpen, label: 'IEEE author' },
   { icon: GraduationCap, label: 'NIT Trichy research intern' },
   { icon: Database, label: 'Kaggle dataset with DOI' },
