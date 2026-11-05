@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, GraduationCap, Linkedin, Trophy } from 'lucide-react';
-import { CREDENTIALS, DATASET, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
+import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
+import { CREDENTIALS, DATASET, domainById, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
  * The crisp view: the strongest work, achievements, internship, paper and dataset on one page,
@@ -21,6 +21,8 @@ const SOCIAL = [
 
 const WINS = [
   { icon: Trophy, value: '1st', label: 'Hack-N-Droid 2.0', sub: 'VIT Chennai · Mar 2026' },
+  { icon: Award, value: 'Final', label: 'ET AI Hackathon', sub: 'Aegis AI · 2026' },
+  { icon: Globe, value: 'EU', label: 'Junction shortlist', sub: 'Selected to attend' },
   { icon: BookOpen, value: 'IEEE', label: 'Published author', sub: 'Schottky TFETs · 2026' },
   { icon: GraduationCap, value: 'NIT', label: 'Research intern', sub: 'Trichy · rated Excellent' },
   { icon: Database, value: 'DOI', label: 'Kaggle dataset', sub: '25,331 images' },
@@ -110,8 +112,17 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
             </p>
             <p className="cx-mono cx-dim">Sponsors: {HACKATHON.sponsors.join(' · ')}</p>
           </article>
+          <div className="cx-more-wins">
+            {MORE_WINS.map((w) => (
+              <article key={w.name} className="cx-block cx-win-block">
+                <div className="cx-mono"><Award className="mr-1 inline h-3.5 w-3.5" /> {w.result}</div>
+                <h3>{w.name}</h3>
+                <p>{w.body}</p>
+              </article>
+            ))}
+          </div>
           <ul className="cx-creds">
-            {CREDENTIALS.filter((c) => !c.label.startsWith('Winner')).map((c) => (
+            {CREDENTIALS.filter((c) => !/^(Winner|Finalist|Shortlisted)/.test(c.label)).map((c) => (
               <li key={c.label}>
                 {c.url ? <a href={c.url} target="_blank" rel="noreferrer">{c.label}</a> : <span>{c.label}</span>}
                 <small>{c.detail}</small>

@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import Lenis from 'lenis';
-import { ArrowUpRight, Award, BookOpen, Database, Github, GraduationCap, Linkedin, MousePointer2, Trophy, X } from 'lucide-react';
+import { ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, MousePointer2, Trophy, X } from 'lucide-react';
 import type { SearchStats } from './three/stations/SearchGraph';
 import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
 import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
-import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
+import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
 const World = lazy(() => import('./three/World'));
@@ -179,6 +179,8 @@ function Rail({ current }: { current: number }) {
 
 const HIGHLIGHTS = [
   { icon: Trophy, label: 'Winner', detail: 'Hack-N-Droid 2.0', href: LINKS.github + '/spatialAuth' },
+  { icon: Award, label: 'Finalist', detail: 'ET AI Hackathon 2026', href: LINKS.github + '/Aegis' },
+  { icon: Globe, label: 'Shortlisted', detail: 'Junction, Europe', href: '#contact' },
   { icon: BookOpen, label: 'IEEE author', detail: 'Schottky TFETs, 2026', href: PUBLICATION.url },
   { icon: GraduationCap, label: 'Research intern', detail: 'NIT Trichy, NLP', href: LINKS.github + '/GradeRAG' },
   { icon: Award, label: 'Kaggle dataset', detail: 'ISIC 2019, with DOI', href: DATASET.url },
@@ -462,6 +464,14 @@ function Contact() {
               <p>{HACKATHON.host}. Our project, {HACKATHON.project}, took first place.</p>
               <p className="sponsors">Sponsors: {HACKATHON.sponsors.join(' · ')}</p>
             </div>
+            {MORE_WINS.map((w) => (
+              <div key={w.name} className="person win">
+                <div className="mono-label"><Award className="mr-1 inline h-3.5 w-3.5" /> {w.result}</div>
+                <h3>{w.name}</h3>
+                <p>{w.body}</p>
+                {w.link && <p className="sponsors"><a href={w.link.url} target="_blank" rel="noreferrer">{w.link.label} ↗</a></p>}
+              </div>
+            ))}
             {PEOPLE.map((p) => (
               <div key={p.name} className="person">
                 <div className="mono-label">{p.title}</div>

@@ -287,13 +287,14 @@ export const PROJECTS: Project[] = [
   {
     slug: 'aegis', name: 'Aegis AI', repo: gh('Aegis'), domain: 'agents', featured: true,
     image: { src: 'aegis.webp', caption: 'The command centre map, where scam, mule and counterfeit signals meet.' },
-    context: 'ET AI Hackathon 2026 · team of 4',
+    context: 'Finalist · ET AI Hackathon 2026 · team of 4',
     tagline: 'Connects scam calls, money-mule accounts and fake currency into one case for the police.',
     description:
       'Our idea: these are three steps of the same criminal money trail. Four AI modules (scam-call NLP, a mule-account graph, counterfeit-note vision and a command centre) each produce evidence, and the platform joins them into one ranked lead.',
     role: 'I owned Fraud Shield: the scam classifier, warning markers, playbooks, the live-call monitor and the WhatsApp bot. I also built the supply-trail engine and the counterfeit serial-number check. 84 of 399 commits.',
     stack: ['Python', 'NLP', 'Twilio', 'Graph ML', 'Next.js'],
     metrics: [
+      { value: 'Finalist', label: 'ET AI Hackathon 2026' },
       { value: '183', label: 'tests passing' },
       { value: '31', label: 'API endpoints' },
     ],
@@ -424,6 +425,8 @@ export const DATASET = {
 
 export const CREDENTIALS = [
   { label: 'Winner · Hack-N-Droid 2.0', detail: 'Android Club, VIT Chennai · Mar 2026', url: 'https://github.com/sudarsan2507-hue/spatialAuth' },
+  { label: 'Finalist · ET AI Hackathon 2026', detail: 'Project Aegis AI · team of 4', url: 'https://github.com/sudarsan2507-hue/Aegis' },
+  { label: 'Shortlisted for Junction, Europe', detail: 'Selected from many applicants · 2026' },
   { label: 'IEEE author', detail: '1 publication · 2026', url: 'https://ieeexplore.ieee.org/author/607201746740566' },
   { label: 'NLP research intern, NIT Trichy', detail: 'May to July 2026 · rated Excellent', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
   { label: 'Kaggle dataset · ISIC 2019', detail: 'DOI 10.34740/kaggle/dsv/20910302', url: 'https://doi.org/10.34740/kaggle/dsv/20910302' },
@@ -441,6 +444,21 @@ export const PEOPLE = [
     name: 'M. Sekar',
     title: 'Research scholar, NIT Tiruchirappalli',
     note: 'Mentored our intern group day to day during the GradeRAG internship.',
+  },
+];
+
+/** Other hackathon results, shown beside the win. */
+export const MORE_WINS = [
+  {
+    result: 'Finalist',
+    name: 'ET AI Hackathon 2026',
+    body: 'Problem statement #6: counterfeiting, fraud and digital-arrest scams. Our team of four reached the finals with Aegis AI, which joins scam calls, mule accounts and fake currency into one case for police. I owned its Fraud Shield module.',
+    link: { label: 'Aegis AI on GitHub', url: 'https://github.com/sudarsan2507-hue/Aegis' },
+  },
+  {
+    result: 'Shortlisted',
+    name: 'Junction, Europe',
+    body: 'Accepted to attend Junction, one of Europe’s largest hackathons, after being shortlisted from a large pool of applicants worldwide.',
   },
 ];
 

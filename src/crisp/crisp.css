@@ -61,7 +61,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .cx-content { padding-block: 8px 48px; min-width: 0; }
 @media (min-width: 960px) { .cx-content { padding-block: 64px; } }
 .cx-wins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (min-width: 640px) { .cx-wins { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 640px) { .cx-wins { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .cx-win { padding: 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); min-width: 0; }
 .cx-win svg { color: var(--cyan); }
 .cx-win:first-child { border-color: color-mix(in srgb, var(--gold) 50%, transparent); }
@@ -149,3 +149,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 
 .crisp .cloud-slot { flex: 1 1 auto; min-height: 0; }
 @media (min-width: 960px) { .crisp .cloud-slot { min-height: 220px; } }
+
+.crisp .cx-more-wins { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .crisp .cx-more-wins { grid-template-columns: 1fr 1fr; } }
+.crisp .cx-more-wins .cx-block { margin-top: 12px; }
