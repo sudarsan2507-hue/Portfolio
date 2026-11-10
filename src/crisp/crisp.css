@@ -157,3 +157,106 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 
 .crisp .cx-portrait { position: relative; width: 210px; max-width: 60vw; aspect-ratio: 1 / 1; margin: -18px 0 4px -20px; }
 @media (min-width: 960px) { .crisp .cloud-slot { min-height: 220px; } }
+
+/* ================= crisp v2: bento, 3D tilt, portal ================= */
+.crisp .cx-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 30; transform-origin: left; transform: scaleX(var(--p, 0)); background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6, #fbbf24); }
+.crisp .cx-portrait { position: relative; width: 230px; max-width: 62vw; margin: -6px 0 26px -6px; justify-self: start; }
+.crisp .cx-pitch { font-size: 18px; }
+.crisp .cx-social { display: flex; flex-wrap: wrap; gap: 8px; border: 0; margin-top: 22px; }
+.crisp .cx-social a { display: inline-flex; grid-template-columns: none; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; background: rgba(11,14,26,.6); }
+.crisp .cx-social a:hover { border-color: var(--cyan); transform: translateY(-2px); transition: all .2s; }
+@media (min-width: 960px) { .crisp .cloud-slot { min-height: 240px; } }
+
+/* tilt cards */
+.crisp .cx-tilt {
+  position: relative; transform-style: preserve-3d;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 26px));
+  opacity: 0; transition: transform .25s ease-out, opacity .7s ease var(--d, 0ms), border-color .3s, box-shadow .3s;
+}
+.crisp .cx-tilt.in { --ty: 0px; opacity: 1; }
+.crisp .cx-tilt::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%), color-mix(in srgb, var(--c) 26%, transparent), transparent 55%); }
+.crisp .cx-tilt:hover::after { opacity: 1; }
+.crisp .cx-tilt:hover { border-color: color-mix(in srgb, var(--c) 60%, transparent); box-shadow: 0 24px 60px -28px color-mix(in srgb, var(--c) 70%, transparent); }
+.crisp .cx-tilt > * { transform: translateZ(18px); }
+.crisp .cx-win.gold { border-color: color-mix(in srgb, var(--gold) 50%, transparent); }
+.crisp .cx-win.gold svg, .crisp .cx-win.gold b { color: var(--gold); }
+.crisp .cx-win { background: rgba(11,14,26,.78); backdrop-filter: blur(8px); }
+
+.crisp .cx-h { margin: 56px 0 18px; font-family: var(--display); font-weight: 800; font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.03em; }
+.crisp .cx-h em { background: linear-gradient(100deg, #22d3ee, #a78bfa 55%, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .1em; }
+.crisp .cx-bento { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 720px) { .crisp .cx-bento { grid-template-columns: 1fr 1fr; } .crisp .cx-card.wide { grid-column: span 2; } }
+.crisp .cx-card { padding: 22px; border-radius: 20px; border: 1px solid var(--line); background: rgba(11,14,26,.8); backdrop-filter: blur(10px); min-width: 0; }
+.crisp .cx-k { color: var(--c); text-transform: uppercase; letter-spacing: .16em; font-size: 10.5px; }
+.crisp .cx-card h3 { margin-top: 8px; font-family: var(--display); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; line-height: 1.1; }
+.crisp .cx-card h3 small { display: block; margin-top: 4px; font-family: var(--sans); font-weight: 500; font-size: 15px; letter-spacing: 0; color: var(--muted); }
+.crisp .cx-card h3.sm { font-size: 17px; font-weight: 700; line-height: 1.3; text-wrap: balance; }
+.crisp .cx-card > p { margin-top: 10px; font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 64ch; }
+.crisp .cx-card > p b { color: var(--fg); }
+.crisp .cx-compare { margin-top: 16px; display: grid; gap: 8px; }
+.crisp .cx-compare > div { display: grid; grid-template-columns: 110px 1fr 64px; align-items: center; gap: 10px; font-size: 12.5px; color: var(--muted); }
+.crisp .cx-compare i { height: 12px; border-radius: 6px; background: #334155; width: 0; transition: width 1.4s cubic-bezier(.22,1,.36,1) .2s; }
+.crisp .cx-tilt.in .cx-compare i { width: var(--w); }
+.crisp .cx-compare .mine i { background: linear-gradient(90deg, #22d3ee, #a78bfa); box-shadow: 0 0 16px rgba(167,139,250,.6); }
+.crisp .cx-compare b { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--fg); }
+.crisp .cx-compare .mine b { color: #a78bfa; }
+.crisp .cx-card .cx-nums b { color: var(--c); }
+.crisp .cx-people-line { font-size: 12.5px !important; color: var(--faint) !important; }
+.crisp .cx-steps { margin-top: 12px; display: grid; gap: 0; }
+.crisp .cx-steps li { position: relative; display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 10px 0; }
+.crisp .cx-steps li + li::before { content: ""; position: absolute; left: 14px; top: -10px; height: 20px; width: 1px; background: var(--line); }
+.crisp .cx-steps svg { width: 30px; height: 30px; padding: 7px; border-radius: 50%; border: 1px solid var(--line); color: var(--cyan); }
+.crisp .cx-steps .gold svg { color: var(--gold); border-color: var(--gold); box-shadow: 0 0 14px rgba(251,191,36,.45); }
+.crisp .cx-steps b { display: block; font-size: 14.5px; } .crisp .cx-steps span { font-size: 12.5px; color: var(--muted); }
+.crisp .cx-band { width: 100%; margin-top: 12px; }
+.crisp .cx-band path { fill: none; stroke: #22d3ee; stroke-width: 2; opacity: .8; } .crisp .cx-band path.v { stroke: #a78bfa; }
+.crisp .cx-band circle { fill: #fff; filter: drop-shadow(0 0 5px #22d3ee); }
+.crisp .cx-split i { transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(.22,1,.36,1) .3s; }
+.crisp .cx-tilt.in .cx-split i { transform: none; }
+.crisp .cx-tilt.in .cx-split .cx-va { transition-delay: .9s; } .crisp .cx-tilt.in .cx-split .cx-te { transition-delay: 1.1s; }
+
+.crisp .cx-proj { background: rgba(11,14,26,.85); }
+.crisp .cx-proj:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+.crisp .cx-badge { position: absolute; right: 10px; top: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(6,7,13,.82); backdrop-filter: blur(6px); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+  font-family: var(--display); font-size: 18px; color: var(--c); text-align: right; line-height: 1.1; }
+.crisp .cx-badge small { display: block; max-width: 18ch; font-family: var(--sans); font-weight: 400; font-size: 10px; color: var(--muted); }
+
+/* portal rings */
+.crisp .cx-portal-rings { position: relative; display: inline-block; width: 92px; height: 92px; flex-shrink: 0; transform-style: preserve-3d; perspective: 400px; }
+.crisp .cx-portal-rings.small { width: 44px; height: 44px; }
+.crisp .cx-portal-rings i { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; background: conic-gradient(from 0deg, #22d3ee, #a78bfa, #f472b6, #fbbf24, #22d3ee) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: cx-spin 5s linear infinite; }
+.crisp .cx-portal-rings i:nth-child(1) { transform: rotateX(68deg); --rx0: 68deg; }
+.crisp .cx-portal-rings i:nth-child(2) { transform: rotateY(68deg); animation-name: cx-spin-y; animation-duration: 7s; inset: 10%; }
+.crisp .cx-portal-rings i:nth-child(3) { animation-duration: 3.4s; animation-direction: reverse; inset: 22%; }
+.crisp .cx-portal-rings b { position: absolute; inset: 38%; border-radius: 50%; background: #fff; box-shadow: 0 0 18px 6px #22d3ee, 0 0 40px 14px rgba(167,139,250,.6); animation: cx-pulse 1.8s ease-in-out infinite; }
+@keyframes cx-spin { from { transform: rotateX(var(--rx0, 0deg)) rotateZ(0); } to { transform: rotateX(var(--rx0, 0deg)) rotateZ(360deg); } }
+@keyframes cx-spin-y { from { transform: rotateY(68deg) rotateZ(0); } to { transform: rotateY(68deg) rotateZ(360deg); } }
+@keyframes cx-pulse { 50% { transform: scale(1.5); opacity: .7; } }
+
+.crisp .cx-portal { position: fixed; z-index: 25; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 12px;
+  padding: 8px 18px 8px 8px; border-radius: 999px; border: 1px solid rgba(160,172,210,.25); background: rgba(8,10,20,.88); backdrop-filter: blur(12px); color: var(--fg); cursor: pointer; text-align: left;
+  transform: translateY(120%) scale(.6) rotate(-8deg); opacity: 0; transition: transform .8s cubic-bezier(.34,1.56,.64,1), opacity .5s, border-color .3s, box-shadow .3s; }
+.crisp .cx-portal.show { transform: none; opacity: 1; }
+.crisp .cx-portal:hover { border-color: #22d3ee; box-shadow: 0 0 40px -6px rgba(34,211,238,.6); }
+.crisp .cx-portal span:last-child { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.crisp .cx-portal b { display: block; font-family: var(--display); font-size: 15px; color: var(--fg); }
+
+.crisp button.cx-full-cta { display: flex; grid-template-columns: none; align-items: center; gap: 22px; padding: 26px; overflow: hidden; position: relative; }
+.crisp button.cx-full-cta::before { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.09) 50%, transparent 70%); transform: translateX(-100%); animation: cx-sheen 3.6s ease-in-out infinite; }
+@keyframes cx-sheen { 60%, 100% { transform: translateX(100%); } }
+.crisp .cx-cta-copy { flex: 1; display: grid; gap: 4px; min-width: 0; }
+.crisp .cx-cta-copy b { grid-column: auto; } .crisp .cx-cta-copy small { color: var(--muted); font-size: 13px; }
+.crisp button.cx-full-cta > svg { grid-column: auto; grid-row: auto; flex-shrink: 0; transition: transform .3s; }
+.crisp button.cx-full-cta:hover > svg { transform: translate(4px, -4px); }
+@media (max-width: 560px) { .crisp .cx-portal-rings:not(.small) { width: 60px; height: 60px; } .crisp button.cx-full-cta { gap: 14px; padding: 18px; } .crisp .cx-compare > div { grid-template-columns: 84px 1fr 56px; } }
+@media (prefers-reduced-motion: reduce) { .crisp .cx-tilt { opacity: 1; --ty: 0px; transform: none; } .crisp .cx-portal-rings i, .crisp .cx-portal-rings b, .crisp button.cx-full-cta::before { animation: none; } }
+.crisp .cx-nums b span, .crisp .cx-compare b span { display: inline; margin: 0; font: inherit; color: inherit; }
+
+/* calm cards: they fade in once and stay still */
+.crisp .cx-tilt, .crisp .cx-proj:hover, .crisp .cx-tilt:hover { transform: none; }
+.crisp .cx-tilt { transition: opacity .6s ease, border-color .3s, box-shadow .3s; }
+.crisp .cx-tilt > * { transform: none; }
+.crisp .cx-tilt::after { background: radial-gradient(600px circle at 50% 0%, color-mix(in srgb, var(--c) 14%, transparent), transparent 60%); }
+.crisp .cx-social a:hover { transform: none; }

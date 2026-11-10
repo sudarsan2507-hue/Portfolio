@@ -1,27 +1,27 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
-import { CREDENTIALS, DATASET, domainById, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
+import { DATASET, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
- * The crisp view: the strongest work, achievements, internship, paper and dataset on one page,
- * over a particle cloud that changes shape section by section. The detailed view has everything else.
+ * The crisp view: everything a reader needs in two minutes, as a bento of cards beside a
+ * particle cloud that changes shape section by section. A portal to the detailed view follows you down.
  */
 
 const CrispWorld = lazy(() => import('./CrispWorld'));
-const ParticlePortrait = lazy(() => import('../components/ParticlePortrait'));
+const DiffusionPortrait = lazy(() => import('../components/DiffusionPortrait'));
 const img = (file: string) => `${import.meta.env.BASE_URL}work/${file}`;
 const TOP = ['glass-armor', 'graderag', 'aegis', 'spatialauth', 'choketap', 'hydrofuse'];
 const top = TOP.map((s) => PROJECTS.find((p) => p.slug === s)!).filter(Boolean);
 
 const SOCIAL = [
-  { label: 'GitHub', href: LINKS.github, icon: Github, handle: 'sudarsan2507-hue' },
-  { label: 'LinkedIn', href: LINKS.linkedin, icon: Linkedin, handle: 'sudarsan-ravichandran' },
-  { label: 'Kaggle', href: LINKS.kaggle, icon: Database, handle: 'sudarsan007r' },
-  { label: 'IEEE Xplore', href: LINKS.ieee, icon: BookOpen, handle: 'author profile' },
+  { label: 'GitHub', href: LINKS.github, icon: Github },
+  { label: 'LinkedIn', href: LINKS.linkedin, icon: Linkedin },
+  { label: 'Kaggle', href: LINKS.kaggle, icon: Database },
+  { label: 'IEEE', href: LINKS.ieee, icon: BookOpen },
 ];
 
 const WINS = [
-  { icon: Trophy, value: '1st', label: 'Hack-N-Droid 2.0', sub: 'VIT Chennai · Mar 2026' },
+  { icon: Trophy, value: '1st', label: 'Hack-N-Droid 2.0', sub: 'VIT Chennai · Mar 2026', gold: true },
   { icon: Award, value: 'Final', label: 'ET AI Hackathon', sub: 'Aegis AI · 2026' },
   { icon: Globe, value: 'EU', label: 'Selected for Junction', sub: 'Hand-picked, global pool' },
   { icon: BookOpen, value: 'IEEE', label: 'Published author', sub: 'Schottky TFETs · 2026' },
@@ -29,193 +29,219 @@ const WINS = [
   { icon: Database, value: 'DOI', label: 'Kaggle dataset', sub: '25,331 images' },
 ];
 
+/** A card that fades in once when it scrolls into view. */
+function Tilt({ children, className = '', color, shape, as: Tag = 'div', delay = 0 }: { children: ReactNode; className?: string; color?: string; shape?: number; as?: 'div' | 'article'; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setSeen(true), { rootMargin: '-40px' });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <Tag
+      ref={ref as never}
+      className={`cx-tilt ${seen ? 'in' : ''} ${className}`}
+      style={{ ['--c' as string]: color ?? 'var(--cyan)', ['--d' as string]: `${delay}ms` }}
+      data-shape={shape}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/** Counts up to a number the first time it scrolls into view. */
+function Count({ to, decimals = 0, prefix = '', suffix = '' }: { to: number; decimals?: number; prefix?: string; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (!ref.current) return;
+    let raf = 0;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const t0 = performance.now();
+      const tick = (t: number) => {
+        const k = Math.min(1, (t - t0) / 1400);
+        setV(to * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    });
+    io.observe(ref.current);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [to]);
+  return <span ref={ref}>{prefix}{v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</span>;
+}
+
+/** Three rings turning in 3D: the way into the detailed view. */
+function Portal({ small }: { small?: boolean }) {
+  return (
+    <span className={`cx-portal-rings ${small ? 'small' : ''}`} aria-hidden>
+      <i /><i /><i /><b />
+    </span>
+  );
+}
+
 export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'gate') => void }) {
-  const sup = PEOPLE[0];
-  const mentor = PEOPLE[1];
+  const [sup, mentor] = PEOPLE;
+  const bar = useRef<HTMLDivElement>(null);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const on = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.current?.style.setProperty('--p', String(max > 0 ? window.scrollY / max : 0));
+      setScrolled(window.scrollY > 420);
+    };
+    on();
+    window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, []);
+
   return (
     <div className="crisp">
+      <div ref={bar} className="cx-progress" aria-hidden />
       <Suspense fallback={null}>
         <CrispWorld />
       </Suspense>
+
+      <button className={`cx-portal ${scrolled ? 'show' : ''}`} onClick={() => onSwitch('detailed')} aria-label="Open the full 3D view">
+        <Portal small />
+        <span><b>Full 3D view</b>all {PROJECTS.length} projects</span>
+      </button>
+
       <div className="cx-page">
-      {/* -------- profile column -------- */}
-      <aside className="cx-profile">
-        <div className="cx-profile-inner">
-          <Suspense fallback={<div className="cx-portrait" />}>
-            <ParticlePortrait className="cx-portrait" count={14000} pointSize={9} hint={false} />
-          </Suspense>
-          <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
-          <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
-          <p className="cx-pitch">
-            I build AI that learns from <em>its mistakes</em>: failure-aware retrieval, guardrails for AI agents, and
-            sensor hardware that measures its own false alarms.
-          </p>
-          <ul className="cx-social">
-            {SOCIAL.map((s) => (
-              <li key={s.label}>
-                <a href={s.href} target="_blank" rel="noreferrer">
-                  <s.icon className="h-4 w-4" />
-                  <span>{s.label}</span>
-                  <small>{s.handle}</small>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <div className="cloud-slot" aria-hidden />
-          <button className="cx-full-link" onClick={() => onSwitch('detailed')}>
-            <span>
-              <b>See the full 3D portfolio</b>
-              All {PROJECTS.length} projects, with interactive scenes
-            </span>
-            <ArrowUpRight className="h-5 w-5" />
-          </button>
-          <button className="cx-back-link" onClick={() => onSwitch('gate')}><ArrowLeft className="h-3.5 w-3.5" /> Back to the start</button>
-        </div>
-      </aside>
-
-      {/* -------- content column -------- */}
-      <main className="cx-content">
-        <section aria-label="Highlights" className="cx-wins" data-shape="0">
-          {WINS.map((w) => (
-            <div key={w.label} className="cx-win">
-              <w.icon className="h-4 w-4" />
-              <b>{w.value}</b>
-              <span>{w.label}</span>
-              <small>{w.sub}</small>
-            </div>
-          ))}
-        </section>
-
-        <Section shape={1} title="Research internship" kicker="NIT Tiruchirappalli · 18 May to 2 July 2026">
-          <article className="cx-block">
-            <h3>GradeRAG: Retrieval-Augmented Generation with Persistent Mistake Knowledge Graph for Cross-Question Failure Learning</h3>
-            <p>
-              A RAG pipeline that labels each wrong answer, stores it in a Mistake Knowledge Graph, and warns the model
-              when a similar question comes up. Tested on HotpotQA and TriviaQA with three models. Rated
-              <b> Excellent</b> on the completion certificate; the paper is under review.
-            </p>
-            <div className="cx-nums">
-              <div><b>+29.5</b><span>points exact match, GPT-4o-mini on HotpotQA</span></div>
-              <div><b>87.5%</b><span>accuracy, up from 58.0%</span></div>
-              <div><b>5 / 6</b><span>model and dataset pairs improved</span></div>
-            </div>
-            <div className="cx-people">
-              <p><b>{sup.name}</b> {sup.title}. Supervisor.</p>
-              <p><b>{mentor.name}</b> {mentor.title}. Day-to-day mentor.</p>
-            </div>
-          </article>
-        </Section>
-
-        <Section shape={2} title="Achievements" kicker="Hackathons and certifications">
-          <article className="cx-block cx-win-block">
-            <div className="cx-mono"><Trophy className="mr-1 inline h-3.5 w-3.5" /> {HACKATHON.result} · {HACKATHON.date}</div>
-            <h3>{HACKATHON.name}</h3>
-            <p>
-              {HACKATHON.host}. Our project spatialAuth logs a phone in only inside a room it recognises. I built its
-              authentication backend: a One-Class SVM per room and a FastAPI service.
-            </p>
-            <p className="cx-mono cx-dim">Sponsors: {HACKATHON.sponsors.join(' · ')}</p>
-          </article>
-          <div className="cx-more-wins">
-            {MORE_WINS.map((w) => (
-              <article key={w.name} className="cx-block cx-win-block">
-                <div className="cx-mono"><Award className="mr-1 inline h-3.5 w-3.5" /> {w.result}</div>
-                <h3>{w.name}</h3>
-                <p>{w.body}</p>
-              </article>
-            ))}
-          </div>
-          <ul className="cx-creds">
-            {CREDENTIALS.filter((c) => !/^(Winner|Finalist|Selected)/.test(c.label)).map((c) => (
-              <li key={c.label}>
-                {c.url ? <a href={c.url} target="_blank" rel="noreferrer">{c.label}</a> : <span>{c.label}</span>}
-                <small>{c.detail}</small>
-              </li>
-            ))}
-          </ul>
-        </Section>
-
-        <Section shape={3} title="Publication" kicker={`${PUBLICATION.venue} · ${PUBLICATION.publisher}`}>
-          <article className="cx-block">
-            <h3>{PUBLICATION.title}</h3>
-            <p className="cx-authors">
-              {PUBLICATION.authors.map((a, i) => (
-                <span key={a}>
-                  <span className={a === 'Sudarsan Ravichandran' ? 'cx-me' : undefined}>{a}</span>
-                  {i < PUBLICATION.authors.length - 1 && ', '}
-                </span>
+        {/* -------- profile column -------- */}
+        <aside className="cx-profile">
+          <div className="cx-profile-inner">
+            <Suspense fallback={<div className="cx-portrait" />}>
+              <DiffusionPortrait className="cx-portrait" />
+            </Suspense>
+            <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
+            <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
+            <p className="cx-pitch">I build AI that learns from <em>its mistakes.</em></p>
+            <ul className="cx-social">
+              {SOCIAL.map((s) => (
+                <li key={s.label}>
+                  <a href={s.href} target="_blank" rel="noreferrer" title={s.label}><s.icon className="h-4 w-4" /><span>{s.label}</span></a>
+                </li>
               ))}
-            </p>
-            <a className="cx-text-link" href={PUBLICATION.url} target="_blank" rel="noreferrer">Read on IEEE Xplore <ArrowUpRight className="h-4 w-4" /></a>
-          </article>
-        </Section>
+            </ul>
+            <div className="cloud-slot" aria-hidden />
+            <button className="cx-back-link" onClick={() => onSwitch('gate')}><ArrowLeft className="h-3.5 w-3.5" /> Back to the start</button>
+          </div>
+        </aside>
 
-        <Section shape={4} title="Kaggle dataset" kicker="CC BY-NC 4.0 · DOI 10.34740/kaggle/dsv/20910302">
-          <article className="cx-block">
-            <h3>{DATASET.title}</h3>
-            <p>{DATASET.summary}</p>
-            <div className="cx-nums">
-              {DATASET.metrics.map((m) => <div key={m.label}><b>{m.value}</b><span>{m.label}</span></div>)}
-            </div>
-            <div className="cx-split" aria-hidden>
-              <i className="cx-tr" /><i className="cx-va" /><i className="cx-te" />
-            </div>
-            <p className="cx-mono cx-dim">train 20,308 · val 2,448 · test 2,575</p>
-            <a className="cx-text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
-          </article>
-        </Section>
+        {/* -------- content column -------- */}
+        <main className="cx-content">
+          <section aria-label="Highlights" className="cx-wins" data-shape="0">
+            {WINS.map((w, i) => (
+              <Tilt key={w.label} className={`cx-win ${w.gold ? 'gold' : ''}`} color={w.gold ? '#fbbf24' : undefined} delay={i * 70}>
+                <w.icon className="h-4 w-4" />
+                <b>{w.value}</b>
+                <span>{w.label}</span>
+                <small>{w.sub}</small>
+              </Tilt>
+            ))}
+          </section>
 
-        <Section shape={5} title="Selected projects" kicker={`6 of ${PROJECTS.length}`}>
+          <h2 className="cx-h">Research <em>&amp; recognition</em></h2>
+          <div className="cx-bento">
+            <Tilt as="article" className="cx-card wide" color="#a78bfa" shape={1}>
+              <div className="cx-mono cx-k">Research internship · NIT Trichy · May to July 2026</div>
+              <h3>GradeRAG <small>RAG that remembers its wrong answers</small></h3>
+              <p>Every wrong answer goes into a Mistake Knowledge Graph and comes back as a warning on similar questions. Rated <b>Excellent</b>; paper under review.</p>
+              <div className="cx-compare" aria-label="Exact match on HotpotQA: 58 percent with standard RAG, 87.5 percent with GradeRAG">
+                <div><span>Standard RAG</span><i style={{ ['--w' as string]: '58%' }} /><b>58.0%</b></div>
+                <div className="mine"><span>GradeRAG</span><i style={{ ['--w' as string]: '87.5%' }} /><b><Count to={87.5} decimals={1} suffix="%" /></b></div>
+              </div>
+              <div className="cx-nums">
+                <div><b><Count to={29.5} decimals={1} prefix="+" /></b><span>points exact match</span></div>
+                <div><b>5 / 6</b><span>model–dataset pairs improved</span></div>
+                <div><b>3</b><span>LLMs, 2 datasets</span></div>
+              </div>
+              <p className="cx-people-line">Supervised by <b>{sup.name}</b> · mentored by <b>{mentor.name}</b></p>
+            </Tilt>
+
+            <Tilt as="article" className="cx-card" color="#fbbf24" shape={2}>
+              <div className="cx-mono cx-k">Hackathons</div>
+              <ol className="cx-steps">
+                <li className="gold"><Trophy className="h-4 w-4" /><div><b>Winner · {HACKATHON.name}</b><span>spatialAuth: I built the ML login backend</span></div></li>
+                <li><Award className="h-4 w-4" /><div><b>Finalist · ET AI Hackathon 2026</b><span>Aegis AI: I owned Fraud Shield</span></div></li>
+                <li><Globe className="h-4 w-4" /><div><b>Selected · Junction, Europe</b><span>Hand-picked from a global pool</span></div></li>
+              </ol>
+            </Tilt>
+
+            <Tilt as="article" className="cx-card" color="#22d3ee" shape={3}>
+              <div className="cx-mono cx-k">IEEE publication · 2026</div>
+              <h3 className="sm">{PUBLICATION.title}</h3>
+              <svg className="cx-band" viewBox="0 0 300 70" aria-hidden>
+                <path d="M0 22 H70 C95 22 95 6 110 6 C140 6 150 40 300 40" /><path d="M0 22 H70 C95 22 95 36 110 36 C140 36 150 66 300 66" className="v" />
+                <circle r="3.5"><animateMotion dur="2.6s" repeatCount="indefinite" path="M0 26 H70 L112 12 C140 12 150 44 300 44" /></circle>
+                <circle r="3.5"><animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite" path="M0 26 H70 L112 12 C140 12 150 44 300 44" /></circle>
+              </svg>
+              <a className="cx-text-link" href={PUBLICATION.url} target="_blank" rel="noreferrer">Read on IEEE Xplore <ArrowUpRight className="h-4 w-4" /></a>
+            </Tilt>
+
+            <Tilt as="article" className="cx-card wide" color="#2dd4bf" shape={4}>
+              <div className="cx-mono cx-k">Kaggle dataset · DOI 10.34740/kaggle/dsv/20910302</div>
+              <h3>ISIC 2019 <small>skin-cancer images, split with no leakage</small></h3>
+              <div className="cx-nums">
+                <div><b><Count to={25331} /></b><span>images, 8 classes</span></div>
+                <div><b>0</b><span>lesions shared across splits</span></div>
+                <div><b>0.3 GB</b><span>down from 9.1 GB</span></div>
+              </div>
+              <div className="cx-split" aria-hidden><i className="cx-tr" /><i className="cx-va" /><i className="cx-te" /></div>
+              <p className="cx-mono cx-dim">train 20,308 · val 2,448 · test 2,575</p>
+              <a className="cx-text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
+            </Tilt>
+          </div>
+
+          <h2 className="cx-h" data-shape="5">Six projects <em>worth your time</em></h2>
           <div className="cx-projects">
-            {top.map((p) => {
+            {top.map((p, i) => {
               const d = domainById[p.domain];
               const m = p.metrics?.[0];
               return (
-                <article key={p.slug} className="cx-proj" style={{ ['--c' as string]: d.color }}>
+                <Tilt as="article" key={p.slug} className="cx-proj" color={d.color} delay={(i % 2) * 90}>
                   {p.image && (
                     <a href={p.repo} target="_blank" rel="noreferrer" className="cx-proj-img">
                       <img src={img(p.image.src)} alt={p.image.caption} loading="lazy" />
                       {p.image.illustration && <span>Illustration</span>}
+                      {m && <b className="cx-badge">{m.value}<small>{m.label}</small></b>}
                     </a>
                   )}
                   <div className="cx-proj-body">
-                    <div className="cx-mono" style={{ color: 'var(--c)' }}>{p.context ?? d.label}</div>
+                    <div className="cx-mono" style={{ color: 'var(--c)' }}>{(p.context ?? d.label).split(' · ').slice(0, 2).join(' · ')}</div>
                     <h3><a href={p.repo} target="_blank" rel="noreferrer">{p.name} <ArrowUpRight className="h-4 w-4" /></a></h3>
                     <p>{p.tagline}</p>
-                    {m && <p className="cx-metric"><b>{m.value}</b> {m.label}</p>}
-                    {p.role && <p className="cx-role"><b>My part.</b> {p.role}</p>}
                     <p className="cx-mono cx-dim">{p.stack.slice(0, 4).join(' · ')}</p>
                   </div>
-                </article>
+                </Tilt>
               );
             })}
           </div>
-        </Section>
 
-        <button className="cx-full-cta" onClick={() => onSwitch('detailed')}>
-          <span className="cx-mono">The long version</span>
-          <b>See all {PROJECTS.length} projects in the full 3D portfolio</b>
-          <ArrowUpRight className="h-6 w-6" />
-        </button>
+          <button className="cx-full-cta" onClick={() => onSwitch('detailed')}>
+            <Portal />
+            <span className="cx-cta-copy">
+              <span className="cx-mono">That was the 2-minute version</span>
+              <b>Step through the portal for the full 3D tour</b>
+              <small>All {PROJECTS.length} projects, a 3D scene for every chapter</small>
+            </span>
+            <ArrowUpRight className="h-6 w-6" />
+          </button>
 
-        <footer className="cx-foot cx-mono cx-dim">
-          <span>© 2026 Sudarsan Ravichandran</span>
-          <span><Award className="mr-1 inline h-3.5 w-3.5" />OCI Generative AI and Data Science Professional</span>
-        </footer>
-      </main>
+          <footer className="cx-foot cx-mono cx-dim">
+            <span>© 2026 Sudarsan Ravichandran</span>
+            <span><Award className="mr-1 inline h-3.5 w-3.5" />OCI Generative AI and Data Science Professional</span>
+          </footer>
+        </main>
       </div>
     </div>
-  );
-}
-
-function Section({ title, kicker, shape, children }: { title: string; kicker: string; shape: number; children: React.ReactNode }) {
-  return (
-    <section className="cx-sec" data-shape={shape}>
-      <header>
-        <h2>{title}</h2>
-        <p className="cx-mono cx-dim">{kicker}</p>
-      </header>
-      {children}
-    </section>
   );
 }
