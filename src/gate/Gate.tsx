@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, Award, BookOpen, Database, Globe, GraduationCap, Trophy } from 'lucide-react';
 import * as THREE from 'three';
 
@@ -238,6 +238,40 @@ const HIGHLIGHTS = [
   { icon: Database, label: 'Kaggle dataset with DOI' },
 ];
 
+/** The achievements, one at a time: each flips in, holds, and flips out, with a progress bar under it. */
+function Spotlight() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setI((v) => (v + 1) % HIGHLIGHTS.length), 2600);
+    return () => window.clearInterval(id);
+  }, []);
+  const h = HIGHLIGHTS[i];
+  const [head, ...rest] = h.label.split(/, | (?=author|research|dataset)/);
+  return (
+    <div className="gate-spot" aria-live="off">
+      <div className="gs-stage">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={i}
+            className="gs-item"
+            initial={{ rotateX: -80, opacity: 0, y: 18 }}
+            animate={{ rotateX: 0, opacity: 1, y: 0 }}
+            exit={{ rotateX: 80, opacity: 0, y: -18 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span className="gs-ico"><h.icon className="h-5 w-5" /></span>
+            <b>{head}</b>
+            <span>{rest.join(' ')}</span>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <div className="gs-dots" aria-hidden>
+        {HIGHLIGHTS.map((x, k) => <i key={x.label} className={k === i ? 'on' : k < i ? 'done' : ''} />)}
+      </div>
+    </div>
+  );
+}
+
 /** Small live previews of each view, drawn in CSS so they stay crisp at any size. */
 function CrispPreview() {
   return (
@@ -303,11 +337,7 @@ export default function Gate({
             <p className="gate-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
             <h1 className="gate-name">Sudarsan <span>Ravichandran</span></h1>
             <p className="gate-tag">I build AI that learns from <em>its mistakes.</em></p>
-            <ul className="gate-hl">
-              {HIGHLIGHTS.map((h) => (
-                <li key={h.label}><h.icon className="h-3.5 w-3.5" />{h.label}</li>
-              ))}
-            </ul>
+            <Spotlight />
           </motion.header>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55, duration: 1 }} className={`gate-choices ${hover ? 'has-' + hover : ''}`} role="group" aria-label="Choose a view">
