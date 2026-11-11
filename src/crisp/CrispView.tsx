@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
+import { lazy, Suspense, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, Linkedin, Trophy } from 'lucide-react';
 import { DATASET, DATASET2, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
@@ -8,7 +8,7 @@ import { DATASET, DATASET2, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBL
  */
 
 const CrispWorld = lazy(() => import('./CrispWorld'));
-const DiffusionPortrait = lazy(() => import('../components/DiffusionPortrait'));
+const HoloPortrait = lazy(() => import('../components/HoloPortrait'));
 const img = (file: string) => `${import.meta.env.BASE_URL}work/${file}`;
 const TOP = ['glass-armor', 'graderag', 'aegis', 'spatialauth', 'choketap', 'hydrofuse'];
 const top = TOP.map((s) => PROJECTS.find((p) => p.slug === s)!).filter(Boolean);
@@ -21,12 +21,12 @@ const SOCIAL = [
 ];
 
 const WINS = [
-  { icon: Trophy, value: '1st', label: 'Hack-N-Droid 2.0', sub: 'VIT Chennai · Mar 2026', gold: true },
-  { icon: Award, value: 'Final', label: 'ET AI Hackathon', sub: 'Aegis AI · 2026' },
-  { icon: Globe, value: 'EU', label: 'Selected for Junction', sub: 'Hand-picked, global pool' },
-  { icon: BookOpen, value: 'IEEE', label: 'Published author', sub: 'Schottky TFETs · 2026' },
-  { icon: GraduationCap, value: 'NIT', label: 'Research intern', sub: 'Trichy · rated Excellent' },
-  { icon: Database, value: '2', label: 'Kaggle datasets', sub: 'ISIC 2019 (DOI) · IXI brain MRI' },
+  { value: '1st', label: 'Hack-N-Droid 2.0', sub: 'VIT Chennai · Mar 2026', gold: true },
+  { value: 'Final', label: 'ET AI Hackathon', sub: 'Aegis AI · 2026' },
+  { value: 'EU', label: 'Selected for Junction', sub: 'Hand-picked, global pool' },
+  { value: 'IEEE', label: 'Published author', sub: 'Schottky TFETs · 2026' },
+  { value: 'NIT', label: 'Research intern', sub: 'Trichy · rated Excellent' },
+  { value: '2', label: 'Kaggle datasets', sub: 'ISIC 2019 (DOI) · IXI brain MRI' },
 ];
 
 /** A card that fades in once when it scrolls into view. */
@@ -50,6 +50,45 @@ function Tilt({ children, className = '', color, shape, as: Tag = 'div', delay =
     </Tag>
   );
 }
+
+/** A picture cut into vertical strips that swing into place in 3D, one after another. */
+const SLICES = 6;
+function SliceImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <span className="cx-slices" role="img" aria-label={alt}>
+      {Array.from({ length: SLICES }, (_, i) => (
+        <i key={i} style={{ ['--i' as string]: i }}><img src={src} alt="" loading="lazy" /></i>
+      ))}
+      <u aria-hidden />
+    </span>
+  );
+}
+/** Moves the highlight on a project picture to where the cursor is. */
+function lens(e: PointerEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty('--lx', `${((e.clientX - r.left) / r.width) * 100}%`);
+  e.currentTarget.style.setProperty('--ly', `${((e.clientY - r.top) / r.height) * 100}%`);
+}
+
+/** A section heading whose rule draws itself the first time it is seen. */
+function Heading({ id, shape, children }: { id: string; shape?: number; children: ReactNode }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setSeen(true), { rootMargin: '-60px' });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+  return <h2 ref={ref} id={id} className={`cx-h ${seen ? 'in' : ''}`} data-shape={shape}>{children}</h2>;
+}
+
+const SECTIONS = [
+  { id: 'cx-highlights', label: 'Highlights' },
+  { id: 'cx-research', label: 'Research' },
+  { id: 'cx-datasets', label: 'Datasets' },
+  { id: 'cx-projects', label: 'Projects' },
+];
 
 /** Counts up to a number the first time it scrolls into view. */
 function Count({ to, decimals = 0, prefix = '', suffix = '' }: { to: number; decimals?: number; prefix?: string; suffix?: string }) {
@@ -91,11 +130,18 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
   const [sup, mentor] = PEOPLE;
   const bar = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState(0);
   useEffect(() => {
     const on = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       bar.current?.style.setProperty('--p', String(max > 0 ? window.scrollY / max : 0));
       setScrolled(window.scrollY > 420);
+      let now = 0;
+      SECTIONS.forEach((sec, i) => {
+        const el = document.getElementById(sec.id);
+        if (el && el.getBoundingClientRect().top < window.innerHeight * 0.45) now = i;
+      });
+      setActive(now);
     };
     on();
     window.addEventListener('scroll', on, { passive: true });
@@ -119,7 +165,7 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
         <aside className="cx-profile">
           <div className="cx-profile-inner">
             <Suspense fallback={<div className="cx-portrait" />}>
-              <DiffusionPortrait className="cx-portrait" />
+              <HoloPortrait className="cx-portrait" />
             </Suspense>
             <p className="cx-eyebrow">CSE (AI &amp; ML) · VIT Chennai</p>
             <h1 className="cx-name">Sudarsan<br /><span>Ravichandran</span></h1>
@@ -131,6 +177,13 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
                 </li>
               ))}
             </ul>
+            <nav className="cx-nav" aria-label="Sections">
+              {SECTIONS.map((sec, i) => (
+                <a key={sec.id} href={`#${sec.id}`} className={i === active ? 'on' : ''} onClick={(e) => { e.preventDefault(); document.getElementById(sec.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+                  <i /><span>{sec.label}</span>
+                </a>
+              ))}
+            </nav>
             <div className="cloud-slot" aria-hidden />
             <button className="cx-back-link" onClick={() => onSwitch('gate')}><ArrowLeft className="h-3.5 w-3.5" /> Back to the start</button>
           </div>
@@ -138,10 +191,9 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
 
         {/* -------- content column -------- */}
         <main className="cx-content">
-          <section aria-label="Highlights" className="cx-wins" data-shape="0">
+          <section id="cx-highlights" aria-label="Highlights" className="cx-wins" data-shape="0">
             {WINS.map((w, i) => (
               <Tilt key={w.label} className={`cx-win ${w.gold ? 'gold' : ''}`} color={w.gold ? '#fbbf24' : undefined} delay={i * 70}>
-                <w.icon className="h-4 w-4" />
                 <b>{w.value}</b>
                 <span>{w.label}</span>
                 <small>{w.sub}</small>
@@ -149,9 +201,9 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
             ))}
           </section>
 
-          <h2 className="cx-h">Research <em>&amp; recognition</em></h2>
+          <Heading id="cx-research">Research <em>&amp; recognition</em></Heading>
           <div className="cx-bento">
-            <Tilt as="article" className="cx-card wide" color="#a78bfa" shape={1}>
+            <Tilt as="article" className="cx-card wide" shape={1}>
               <div className="cx-mono cx-k">Research internship · NIT Trichy · May to July 2026</div>
               <h3>GradeRAG <small>RAG that remembers its wrong answers</small></h3>
               <p>Every wrong answer goes into a Mistake Knowledge Graph and comes back as a warning on similar questions. Rated <b>Excellent</b>; paper under review.</p>
@@ -176,7 +228,7 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
               </ol>
             </Tilt>
 
-            <Tilt as="article" className="cx-card" color="#22d3ee" shape={3}>
+            <Tilt as="article" className="cx-card" shape={3}>
               <div className="cx-mono cx-k">IEEE publication · 2026</div>
               <h3 className="sm">{PUBLICATION.title}</h3>
               <svg className="cx-band" viewBox="0 0 300 70" aria-hidden>
@@ -186,42 +238,64 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
               </svg>
               <a className="cx-text-link" href={PUBLICATION.url} target="_blank" rel="noreferrer">Read on IEEE Xplore <ArrowUpRight className="h-4 w-4" /></a>
             </Tilt>
+          </div>
 
-            <Tilt as="article" className="cx-card wide" color="#2dd4bf" shape={4}>
-              <div className="cx-mono cx-k">Kaggle dataset · DOI 10.34740/kaggle/dsv/20910302</div>
+          <Heading id="cx-datasets">Open datasets <em>on Kaggle</em></Heading>
+          <div className="cx-bento">
+            <Tilt as="article" className="cx-card" shape={4}>
+              <div className="cx-mono cx-k">DOI 10.34740/kaggle/dsv/20910302</div>
               <h3>ISIC 2019 <small>skin-cancer images, split with no leakage</small></h3>
-              <div className="cx-nums">
+              <p>Many ISIC photos show the same lesion twice, so a random split leaks. This version splits by lesion, cleans every image and resizes it to 224 × 224.</p>
+              <div className="cx-nums two">
                 <div><b><Count to={25331} /></b><span>images, 8 classes</span></div>
                 <div><b>0</b><span>lesions shared across splits</span></div>
-                <div><b>0.3 GB</b><span>down from 9.1 GB</span></div>
               </div>
               <div className="cx-split" aria-hidden><i className="cx-tr" /><i className="cx-va" /><i className="cx-te" /></div>
-              <p className="cx-mono cx-dim">train 20,308 · val 2,448 · test 2,575</p>
-              <a className="cx-text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
-              <div className="cx-ds2">
-                <div className="cx-mono cx-k">Second dataset</div>
-                <p><b>{DATASET2.title}.</b> {DATASET2.summary}</p>
+              <p className="cx-mono cx-dim">train 20,308 · val 2,448 · test 2,575 · 0.3 GB, down from 9.1 GB</p>
+              <div className="cx-links">
+                <a className="cx-text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
+              </div>
+            </Tilt>
+
+            <Tilt as="article" className="cx-card" delay={90}>
+              <div className="cx-mono cx-k">DOI {DATASET2.doiLabel}</div>
+              <h3>{DATASET2.short} <small>preprocessed and ready for brain-age models</small></h3>
+              <p>T1 scans from the public IXI collection, skull-stripped and registered to one template, with age, sex, site and scanner in a single labels file. The same scans went through the BrainAgeNeXt part of my iAudit fairness audit.</p>
+              <div className="cx-nums two">
+                <div><b><Count to={492} /></b><span>scans, one per person</span></div>
+                <div><b>1 mm</b><span>182 × 218 × 182, MNI152 space</span></div>
+              </div>
+              <div className="cx-split" aria-hidden><i className="cx-tr" /><i className="cx-va" /><i className="cx-te" /></div>
+              <p className="cx-mono cx-dim">train 393 · val 49 · test 50 · by subject, stratified by age decade</p>
+              <ol className="cx-pipe">
+                {['Truncate intensity', 'Strip skull', 'Register to MNI152', 'N4 bias correction', 'Denoise', 'Mask', 'Scale 0 to 1'].map((step) => <li key={step}>{step}</li>)}
+              </ol>
+              <p className="cx-mono cx-dim">NIfTI float32 · 3.4 GB download, 14 GB unpacked · {DATASET2.licence}</p>
+              <p className="cx-fine">Sites: Guys 312 and HH 180. Preprocessing is automatic and was not checked scan by scan.</p>
+              <div className="cx-links">
                 <a className="cx-text-link" href={DATASET2.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
+                <a className="cx-text-link" href={DATASET2.notebook} target="_blank" rel="noreferrer">Starter notebook <ArrowUpRight className="h-4 w-4" /></a>
+                <a className="cx-text-link" href={DATASET2.code} target="_blank" rel="noreferrer">iAudit code <ArrowUpRight className="h-4 w-4" /></a>
               </div>
             </Tilt>
           </div>
 
-          <h2 className="cx-h" data-shape="5">Six projects <em>worth your time</em></h2>
+          <Heading id="cx-projects" shape={5}>Six projects <em>worth your time</em></Heading>
           <div className="cx-projects">
             {top.map((p, i) => {
               const d = domainById[p.domain];
               const m = p.metrics?.[0];
               return (
-                <Tilt as="article" key={p.slug} className="cx-proj" color={d.color} delay={(i % 2) * 90}>
+                <Tilt as="article" key={p.slug} className="cx-proj" delay={(i % 2) * 90}>
                   {p.image && (
-                    <a href={p.repo} target="_blank" rel="noreferrer" className="cx-proj-img">
-                      <img src={img(p.image.src)} alt={p.image.caption} loading="lazy" />
+                    <a href={p.repo} target="_blank" rel="noreferrer" className="cx-proj-img" onPointerMove={lens}>
+                      <SliceImage src={img(p.image.src)} alt={p.image.caption} />
                       {p.image.illustration && <span>Illustration</span>}
                       {m && <b className="cx-badge">{m.value}<small>{m.label}</small></b>}
                     </a>
                   )}
                   <div className="cx-proj-body">
-                    <div className="cx-mono" style={{ color: 'var(--c)' }}>{(p.context ?? d.label).split(' · ').slice(0, 2).join(' · ')}</div>
+                    <div className="cx-mono cx-accent">{(p.context ?? d.label).split(' · ').slice(0, 2).join(' · ')}</div>
                     <h3><a href={p.repo} target="_blank" rel="noreferrer">{p.name} <ArrowUpRight className="h-4 w-4" /></a></h3>
                     <p>{p.tagline}</p>
                     <p className="cx-mono cx-dim">{p.stack.slice(0, 4).join(' · ')}</p>

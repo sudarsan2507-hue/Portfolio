@@ -426,9 +426,37 @@ export const DATASET = {
 /** My second Kaggle dataset. Details beyond the title and link are kept to what iAudit already documents. */
 export const DATASET2 = {
   title: 'IXI T1 Brain MRI, Preprocessed for Brain Age',
+  short: 'IXI T1 brain MRI',
   url: 'https://www.kaggle.com/datasets/sudarsan007r/ixi-t1-brain-mri-preprocessed-brain-age',
+  doi: 'https://doi.org/10.34740/kaggle/dsv/21848925',
+  doiLabel: '10.34740/kaggle/dsv/21848925',
+  notebook: 'https://www.kaggle.com/code/sudarsan007r/brain-age-from-mri-complete-starter-ixi-t1',
+  code: 'https://github.com/sudarsan2507-hue/iAudit',
+  licence: 'CC BY-SA 3.0',
   summary:
-    'T1-weighted brain MRI scans from the public IXI collection, preprocessed for brain-age prediction. It is the data side of iAudit, my fairness audit of brain-age models, so others can train and test on the same scans.',
+    'The raw IXI scans are whole heads in mixed orientations, with no labels file. This version has 492 T1 scans, one per person, already skull-stripped and registered to the same template, with age, sex, site and scanner in one labels file. They are the Guys and HH scans that went through the BrainAgeNeXt part of iAudit, my fairness audit of brain-age models.',
+  metrics: [
+    { value: '492', label: 'scans, one per person (Guys 312, HH 180)' },
+    { value: '182 × 218 × 182', label: 'voxels at 1 mm, MNI152 space' },
+    { value: '3.4 GB', label: 'download, 14 GB unpacked' },
+  ],
+  split: [
+    { name: 'train', count: '393' },
+    { name: 'val', count: '49' },
+    { name: 'test', count: '50' },
+  ],
+  splitNote: 'Split by subject and stratified by age decade, so nobody appears in two splits.',
+  pipeline: [
+    'Intensity truncated at the 1st and 99th percentile',
+    'Skull stripped with ANTsPyNet brain extraction',
+    'Affine registration to the MNI152 template, 1 mm',
+    'N4 bias-field correction',
+    'Non-local means denoising',
+    'Brain mask applied, background set to 0',
+    'Scaled to the 0 to 1 range',
+  ],
+  format: 'NIfTI (.nii.gz), float32, one file per subject, plus labels.csv',
+  note: 'The IOP site is left out because it was the site the brain-age models struggled with most in iAudit. Preprocessing is automatic and was not checked scan by scan.',
   related: 'iaudit',
 };
 
@@ -439,7 +467,7 @@ export const CREDENTIALS = [
   { label: 'IEEE author', detail: '1 publication · 2026', url: 'https://ieeexplore.ieee.org/author/607201746740566' },
   { label: 'NLP research intern, NIT Trichy', detail: 'May to July 2026 · rated Excellent', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
   { label: 'Kaggle dataset · ISIC 2019', detail: 'DOI 10.34740/kaggle/dsv/20910302', url: 'https://doi.org/10.34740/kaggle/dsv/20910302' },
-  { label: 'Kaggle dataset · IXI brain MRI', detail: 'Preprocessed for brain age', url: 'https://www.kaggle.com/datasets/sudarsan007r/ixi-t1-brain-mri-preprocessed-brain-age' },
+  { label: 'Kaggle dataset · IXI brain MRI', detail: 'DOI 10.34740/kaggle/dsv/21848925', url: 'https://doi.org/10.34740/kaggle/dsv/21848925' },
   { label: 'OCI Generative AI Professional', detail: 'Oracle · 2025' },
   { label: 'OCI Data Science Professional', detail: 'Oracle · 2025' },
 ];

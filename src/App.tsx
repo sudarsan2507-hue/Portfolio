@@ -4,7 +4,7 @@ import Lenis from 'lenis';
 import { ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, MousePointer2, Trophy, X } from 'lucide-react';
 import type { SearchStats } from './three/stations/SearchGraph';
 import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
-import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
+import { Chip, ProjectLinks, Reveal, ScanImg, useInView, useReducedMotion, useVisible } from './components/ui';
 import { CREDENTIALS, DATASET, DATASET2, DOMAINS, domainById, FORKS, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
@@ -128,10 +128,33 @@ export default function DetailedView({ onSwitch }: { onSwitch: (m: 'crisp' | 'ga
               <a className="btn" href={LINKS.kaggle} target="_blank" rel="noreferrer">Kaggle profile</a>
             </div>
           <div className="paper ds2">
-            <div className="mono-label">Second Kaggle dataset</div>
+            <div className="mono-label">Published on Kaggle · {DATASET2.licence} · DOI</div>
             <h3 className="paper-title">{DATASET2.title}</h3>
             <p className="body">{DATASET2.summary}</p>
-            <div className="actions"><a className="btn btn-solid" href={DATASET2.url} target="_blank" rel="noreferrer">View the dataset <ArrowUpRight className="h-4 w-4" /></a></div>
+            <div className="ds-metrics">
+              {DATASET2.metrics.map((m) => (
+                <div key={m.label}><b>{m.value}</b><span>{m.label}</span></div>
+              ))}
+            </div>
+            <div className="ds-split" aria-hidden>
+              {DATASET2.split.map((s) => <div key={s.name} className={`ds-${s.name}`} />)}
+            </div>
+            <div className="ds-legend">
+              {DATASET2.split.map((s) => (
+                <span key={s.name}><i className={`ds-${s.name}`} />{s.name} <b>{s.count}</b></span>
+              ))}
+            </div>
+            <p className="body ds-note">{DATASET2.splitNote} {DATASET2.format}.</p>
+            <ol className="ds-pipe">
+              {DATASET2.pipeline.map((step) => <li key={step}>{step}</li>)}
+            </ol>
+            <p className="body ds-note">{DATASET2.note}</p>
+            <div className="actions">
+              <a className="btn btn-solid" href={DATASET2.url} target="_blank" rel="noreferrer">View the dataset <ArrowUpRight className="h-4 w-4" /></a>
+              <a className="btn" href={DATASET2.doi} target="_blank" rel="noreferrer">DOI</a>
+              <a className="btn" href={DATASET2.notebook} target="_blank" rel="noreferrer">Starter notebook</a>
+              <a className="btn" href={DATASET2.code} target="_blank" rel="noreferrer">iAudit code</a>
+            </div>
           </div>
           </div>
         </Chapter>
@@ -304,12 +327,12 @@ function SpecList({ slugs, compact }: { slugs: string[]; compact?: boolean }) {
             {p.context && <div className="spec-context">{p.context}</div>}
             <p className="spec-tag">{p.tagline}</p>
             {p.image && compact && (
-              <img className="spec-thumb" src={imageUrl(p.image.src)} alt={p.image.caption} loading="lazy" />
+              <ScanImg className="spec-thumb" src={imageUrl(p.image.src)} alt={p.image.caption} />
             )}
             <p className="spec-desc">{p.description}</p>
             {p.image && !compact && (
               <figure className="spec-fig">
-                <img src={imageUrl(p.image.src)} alt={p.image.caption} loading="lazy" />
+                <ScanImg src={imageUrl(p.image.src)} alt={p.image.caption} />
                 <figcaption>{p.image.illustration && <b>Illustration. </b>}{p.image.caption}</figcaption>
               </figure>
             )}
@@ -376,7 +399,7 @@ function Universe() {
               <button onClick={() => setSelected(null)} className="u-close" aria-label="Close"><X className="h-4 w-4" /></button>
               {selected.image && (
                 <figure className="u-fig">
-                  <img src={imageUrl(selected.image.src)} alt={selected.image.caption} />
+                  <ScanImg src={imageUrl(selected.image.src)} alt={selected.image.caption} />
                   {selected.image.illustration && <span className="u-badge">Illustration</span>}
                 </figure>
               )}

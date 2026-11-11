@@ -497,3 +497,15 @@ section[id] { scroll-margin-top: 72px; }
 @media (max-height: 640px) { .gate-spot { display: none; } }
 
 .paper.ds2 { margin-top: 30px; }
+
+/* detailed view pictures: scanned in from the top with a colour shift, then a slow pan on hover */
+@property --scan { syntax: '<percentage>'; inherits: false; initial-value: -14%; }
+.scan-img { --scan: -14%; -webkit-mask-image: linear-gradient(to bottom, #000 var(--scan), transparent calc(var(--scan) + 14%)); mask-image: linear-gradient(to bottom, #000 var(--scan), transparent calc(var(--scan) + 14%));
+  filter: saturate(0) contrast(1.5) brightness(1.7) hue-rotate(160deg); }
+.scan-img.in { animation: scan-in 1.25s cubic-bezier(.3,.7,.2,1) forwards; }
+@keyframes scan-in { 60% { filter: saturate(1.6) contrast(1.1) brightness(1.2) hue-rotate(40deg); } to { --scan: 100%; filter: none; } }
+.spec-fig .scan-img, .spec-thumb.scan-img { transition: object-position 3.5s ease-in-out; }
+.spec-fig:hover .scan-img, .spec-thumb.scan-img:hover { object-position: bottom; }
+@media (prefers-reduced-motion: reduce) { .scan-img { -webkit-mask-image: none; mask-image: none; filter: none; animation: none !important; } }
+
+.ds-note { margin-top: 14px; font-size: 14px; }

@@ -41,6 +41,12 @@ export function useVisible<T extends HTMLElement>(margin = '0px') {
   return [ref, visible] as const;
 }
 
+/** A picture that is scanned in from the top the first time it is seen (detailed view). */
+export function ScanImg({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
+  const [ref, seen] = useInView<HTMLImageElement>('-60px');
+  return <img ref={ref} className={cn('scan-img', seen && 'in', className)} src={src} alt={alt} loading="lazy" />;
+}
+
 export function Reveal({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div

@@ -140,10 +140,10 @@ function Cloud() {
     const color = new Float32Array(N * 3);
     const rand = new Float32Array(N);
     const c = new THREE.Color();
-    const palette = ['#22d3ee', '#a78bfa', '#f472b6', '#fbbf24', '#34d399', '#e6e9f2'];
+    const palette = ['#22d3ee', '#7dd3fc', '#e6e9f2', '#94a3b8'];
     for (let i = 0; i < N; i++) {
       rand[i] = R();
-      c.set(palette[Math.floor(R() * (R() < 0.6 ? 2 : palette.length))]).multiplyScalar(0.7 + R() * 0.5);
+      c.set(palette[Math.floor(R() * palette.length)]).multiplyScalar(0.45 + R() * 0.4);
       color.set([c.r, c.g, c.b], i * 3);
     }
     const g = new THREE.BufferGeometry();
@@ -212,7 +212,67 @@ function Cloud() {
   return (
     <group ref={group}>
       <points geometry={geom} material={mat} frustumCulled={false} />
+      <Orbit />
     </group>
+  );
+}
+
+/** A wire shell and two tilted rings, each carrying a satellite, turning around the cloud. */
+function Orbit() {
+  const shell = useRef<THREE.LineSegments>(null);
+  const a = useRef<THREE.Group>(null);
+  const b = useRef<THREE.Group>(null);
+  const edges = useMemo(() => new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(3.35, 1)), []);
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (shell.current) shell.current.rotation.set(t * 0.05, -t * 0.22, 0);
+    if (a.current) a.current.rotation.z = t * 0.5;
+    if (b.current) b.current.rotation.z = -t * 0.36;
+  });
+  return (
+    <>
+      <lineSegments ref={shell} geometry={edges}>
+        <lineBasicMaterial color="#22d3ee" transparent opacity={0.1} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </lineSegments>
+      <group rotation={[1.25, 0.2, 0]}>
+        <group ref={a}>
+          <mesh><torusGeometry args={[3.7, 0.008, 6, 120]} /><meshBasicMaterial color="#94a3b8" transparent opacity={0.35} /></mesh>
+          <mesh position={[3.7, 0, 0]}><sphereGeometry args={[0.09, 12, 12]} /><meshBasicMaterial color="#e6e9f2" /></mesh>
+        </group>
+      </group>
+      <group rotation={[1.9, -0.5, 0]}>
+        <group ref={b}>
+          <mesh><torusGeometry args={[4.05, 0.008, 6, 120]} /><meshBasicMaterial color="#22d3ee" transparent opacity={0.35} /></mesh>
+          <mesh position={[-4.05, 0, 0]}><sphereGeometry args={[0.07, 12, 12]} /><meshBasicMaterial color="#22d3ee" /></mesh>
+        </group>
+      </group>
+    </>
+  );
+}
+
+/** Faint dust at different depths across the whole page; it drifts past as you scroll. */
+function Dust() {
+  const ref = useRef<THREE.Points>(null);
+  const geom = useMemo(() => {
+    const R = rng(21);
+    const n = 700;
+    const pos = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) pos.set([(R() - 0.5) * 30, (R() - 0.5) * 60, -10 + R() * 14], i * 3);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    return g;
+  }, []);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const target = (window.scrollY / max) * 34 - 17;
+    ref.current.position.y += (target - ref.current.position.y) * 0.08;
+    ref.current.rotation.y = state.pointer.x * 0.04;
+  });
+  return (
+    <points ref={ref} geometry={geom} frustumCulled={false}>
+      <pointsMaterial color="#9fb4ff" size={0.05} sizeAttenuation transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} />
+    </points>
   );
 }
 
@@ -224,9 +284,10 @@ export default function CrispWorld() {
   return (
     <div className="crisp-world" aria-hidden>
       <Canvas camera={{ position: [0, 0, 9], fov: 50 }} dpr={[1, 1.75]} gl={{ antialias: false, alpha: true }}>
+        <Dust />
         <Cloud />
         <EffectComposer>
-          <Bloom intensity={1.0} luminanceThreshold={0.15} mipmapBlur />
+          <Bloom intensity={0.45} luminanceThreshold={0.3} mipmapBlur />
         </EffectComposer>
       </Canvas>
     </div>
