@@ -480,22 +480,6 @@ section[id] { scroll-margin-top: 72px; }
 .dp-corner.bl { bottom: 0; left: 0; border-right: 0; border-top: 0; } .dp-corner.br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
 .dportrait:hover .dp-corner { opacity: 1; width: 26px; height: 26px; transition: all .3s; }
 
-/* entrance: achievement spotlight */
-.gate-spot { margin: 22px auto 0; width: min(560px, 100%); display: grid; justify-items: center; gap: 12px; }
-.gs-stage { perspective: 700px; height: 58px; display: grid; place-items: center; width: 100%; }
-.gs-item { display: inline-flex; align-items: center; gap: 12px; padding: 10px 22px 10px 10px; border-radius: 999px; transform-origin: 50% 50% -20px;
-  background: rgba(4, 5, 12, 0.88); border: 1px solid rgba(255,255,255,0.22); box-shadow: 0 0 0 1px rgba(34,211,238,0.25), 0 14px 40px -12px rgba(34,211,238,0.55); backdrop-filter: blur(10px); white-space: nowrap; }
-.gs-ico { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f472b6); color: #05060c; }
-.gs-item b { font-family: var(--font-display); font-weight: 800; font-size: clamp(17px, 2vw, 22px); letter-spacing: -0.01em; color: #fff; text-transform: capitalize; }
-.gs-item > span:last-child { font-size: clamp(14px, 1.5vw, 17px); color: #cfd6ea; }
-.gs-dots { display: flex; gap: 6px; }
-.gs-dots i { width: 22px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.18); overflow: hidden; position: relative; }
-.gs-dots i.done { background: rgba(34,211,238,0.6); }
-.gs-dots i.on::after { content: ""; position: absolute; inset: 0; background: #22d3ee; transform-origin: left; animation: gs-fill 2.6s linear both; }
-@keyframes gs-fill { from { transform: scaleX(0); } }
-@media (max-width: 899px) { .gs-item { white-space: normal; text-align: left; } .gs-stage { height: 70px; } }
-@media (max-height: 640px) { .gate-spot { display: none; } }
-
 .paper.ds2 { margin-top: 30px; }
 
 /* detailed view pictures: scanned in from the top with a colour shift, then a slow pan on hover */
