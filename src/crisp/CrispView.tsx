@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, Linkedin, Trophy } from 'lucide-react';
-import { DATASET, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
+import { DATASET, DATASET2, domainById, HACKATHON, LINKS, PEOPLE, PROJECTS, PUBLICATION } from '../data/projects';
 
 /*
  * The crisp view: everything a reader needs in two minutes, as a bento of cards beside a
@@ -26,7 +26,7 @@ const WINS = [
   { icon: Globe, value: 'EU', label: 'Selected for Junction', sub: 'Hand-picked, global pool' },
   { icon: BookOpen, value: 'IEEE', label: 'Published author', sub: 'Schottky TFETs · 2026' },
   { icon: GraduationCap, value: 'NIT', label: 'Research intern', sub: 'Trichy · rated Excellent' },
-  { icon: Database, value: 'DOI', label: 'Kaggle dataset', sub: '25,331 images' },
+  { icon: Database, value: '2', label: 'Kaggle datasets', sub: 'ISIC 2019 (DOI) · IXI brain MRI' },
 ];
 
 /** A card that fades in once when it scrolls into view. */
@@ -198,6 +198,11 @@ export default function CrispView({ onSwitch }: { onSwitch: (m: 'detailed' | 'ga
               <div className="cx-split" aria-hidden><i className="cx-tr" /><i className="cx-va" /><i className="cx-te" /></div>
               <p className="cx-mono cx-dim">train 20,308 · val 2,448 · test 2,575</p>
               <a className="cx-text-link" href={DATASET.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
+              <div className="cx-ds2">
+                <div className="cx-mono cx-k">Second dataset</div>
+                <p><b>{DATASET2.title}.</b> {DATASET2.summary}</p>
+                <a className="cx-text-link" href={DATASET2.url} target="_blank" rel="noreferrer">View on Kaggle <ArrowUpRight className="h-4 w-4" /></a>
+              </div>
             </Tilt>
           </div>
 

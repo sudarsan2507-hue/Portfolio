@@ -423,6 +423,15 @@ export const DATASET = {
   pipeline: ['Non-Local Means denoise', 'Shades-of-Gray colour', 'CLAHE contrast', 'Crop to 224×224', 'DullRazor hair removal', 'Otsu lesion masks'],
 };
 
+/** My second Kaggle dataset. Details beyond the title and link are kept to what iAudit already documents. */
+export const DATASET2 = {
+  title: 'IXI T1 Brain MRI, Preprocessed for Brain Age',
+  url: 'https://www.kaggle.com/datasets/sudarsan007r/ixi-t1-brain-mri-preprocessed-brain-age',
+  summary:
+    'T1-weighted brain MRI scans from the public IXI collection, preprocessed for brain-age prediction. It is the data side of iAudit, my fairness audit of brain-age models, so others can train and test on the same scans.',
+  related: 'iaudit',
+};
+
 export const CREDENTIALS = [
   { label: 'Winner · Hack-N-Droid 2.0', detail: 'Android Club, VIT Chennai · Mar 2026', url: 'https://github.com/sudarsan2507-hue/spatialAuth' },
   { label: 'Finalist · ET AI Hackathon 2026', detail: 'Project Aegis AI · team of 4', url: 'https://github.com/sudarsan2507-hue/Aegis' },
@@ -430,6 +439,7 @@ export const CREDENTIALS = [
   { label: 'IEEE author', detail: '1 publication · 2026', url: 'https://ieeexplore.ieee.org/author/607201746740566' },
   { label: 'NLP research intern, NIT Trichy', detail: 'May to July 2026 · rated Excellent', url: 'https://github.com/sudarsan2507-hue/GradeRAG' },
   { label: 'Kaggle dataset · ISIC 2019', detail: 'DOI 10.34740/kaggle/dsv/20910302', url: 'https://doi.org/10.34740/kaggle/dsv/20910302' },
+  { label: 'Kaggle dataset · IXI brain MRI', detail: 'Preprocessed for brain age', url: 'https://www.kaggle.com/datasets/sudarsan007r/ixi-t1-brain-mri-preprocessed-brain-age' },
   { label: 'OCI Generative AI Professional', detail: 'Oracle · 2025' },
   { label: 'OCI Data Science Professional', detail: 'Oracle · 2025' },
 ];

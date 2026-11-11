@@ -5,7 +5,7 @@ import { ArrowUpRight, Award, BookOpen, Database, Github, Globe, GraduationCap, 
 import type { SearchStats } from './three/stations/SearchGraph';
 import { initScrollTracking, scroll, STATION_LABEL, STATIONS, stationSide, type StationId } from './three/store';
 import { Chip, ProjectLinks, Reveal, useInView, useReducedMotion, useVisible } from './components/ui';
-import { CREDENTIALS, DATASET, DOMAINS, domainById, FORKS, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
+import { CREDENTIALS, DATASET, DATASET2, DOMAINS, domainById, FORKS, HACKATHON, MORE_WINS, LINKS, PEOPLE, PROJECTS, PUBLICATION, type Domain, type Project } from './data/projects';
 import { cn } from './lib/utils';
 
 const World = lazy(() => import('./three/World'));
@@ -101,7 +101,7 @@ export default function DetailedView({ onSwitch }: { onSwitch: (m: 'crisp' | 'ga
           <SpecList slugs={['wisp', 'hydrofuse', 'syrinx', 'safesignal']} />
         </Chapter>
 
-        <Chapter id="data" n={5} kicker="Kaggle dataset" title={<>My Kaggle dataset, <em>for skin cancer.</em></>}>
+        <Chapter id="data" n={5} kicker="Kaggle dataset" title={<>My Kaggle datasets, <em>skin cancer and brain MRI.</em></>}>
           <div className="paper">
             <div className="mono-label">Published on Kaggle · CC BY-NC 4.0 · DOI</div>
             <h3 className="paper-title">{DATASET.title}</h3>
@@ -127,6 +127,12 @@ export default function DetailedView({ onSwitch }: { onSwitch: (m: 'crisp' | 'ga
               <a className="btn" href={DATASET.doi} target="_blank" rel="noreferrer">DOI</a>
               <a className="btn" href={LINKS.kaggle} target="_blank" rel="noreferrer">Kaggle profile</a>
             </div>
+          <div className="paper ds2">
+            <div className="mono-label">Second Kaggle dataset</div>
+            <h3 className="paper-title">{DATASET2.title}</h3>
+            <p className="body">{DATASET2.summary}</p>
+            <div className="actions"><a className="btn btn-solid" href={DATASET2.url} target="_blank" rel="noreferrer">View the dataset <ArrowUpRight className="h-4 w-4" /></a></div>
+          </div>
           </div>
         </Chapter>
 

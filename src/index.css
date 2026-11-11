@@ -495,3 +495,5 @@ section[id] { scroll-margin-top: 72px; }
 @keyframes gs-fill { from { transform: scaleX(0); } }
 @media (max-width: 899px) { .gs-item { white-space: normal; text-align: left; } .gs-stage { height: 70px; } }
 @media (max-height: 640px) { .gate-spot { display: none; } }
+
+.paper.ds2 { margin-top: 30px; }

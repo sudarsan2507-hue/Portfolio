@@ -260,3 +260,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .crisp .cx-tilt > * { transform: none; }
 .crisp .cx-tilt::after { background: radial-gradient(600px circle at 50% 0%, color-mix(in srgb, var(--c) 14%, transparent), transparent 60%); }
 .crisp .cx-social a:hover { transform: none; }
+
+.crisp .cx-ds2 { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.crisp .cx-ds2 p { margin-top: 6px; font-size: 14px; line-height: 1.6; color: var(--muted); } .crisp .cx-ds2 p b { color: var(--fg); }
