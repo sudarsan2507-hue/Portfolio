@@ -11,6 +11,7 @@ import * as THREE from 'three';
  */
 
 const STEPS = 30;
+const TOUCH = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
 const PHOTO = `${import.meta.env.BASE_URL}work/sudarsan-color.webp`;
 
 const vert = /* glsl */ `
@@ -142,7 +143,7 @@ function Plane({ visible, reduced, readout }: { visible: boolean; reduced: boole
     if (readout.current && stepNow !== s.shown) {
       s.shown = stepNow;
       readout.current.textContent =
-        stepNow >= STEPS ? 'resolved · hover to add noise' : `denoising · step ${String(stepNow).padStart(2, '0')}/${STEPS}`;
+        stepNow >= STEPS ? (TOUCH ? 'resolved · tap to add noise' : 'resolved · hover to add noise') : `denoising · step ${String(stepNow).padStart(2, '0')}/${STEPS}`;
       readout.current.dataset.done = stepNow >= STEPS ? '1' : '0';
     }
   });

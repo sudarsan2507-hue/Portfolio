@@ -12,6 +12,7 @@ import * as THREE from 'three';
 
 const G = 150;
 const SIDE = 1.92;
+const TOUCH = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
 const PHOTO = `${import.meta.env.BASE_URL}work/sudarsan-color.webp`;
 
 const pointsVert = /* glsl */ `
@@ -191,7 +192,7 @@ function Scene({ visible, reduced, readout }: { visible: boolean; reduced: boole
       group.current.rotation.x += (rx - group.current.rotation.x) * 0.12;
     }
 
-    const label = !done ? `assembling · ${Math.round(s.p * G * G).toLocaleString('en-US')} points` : hover ? 'depth view · move to turn' : 'locked · hover to lift into 3D';
+    const label = !done ? `assembling · ${Math.round(s.p * G * G).toLocaleString('en-US')} points` : hover ? (TOUCH ? 'depth view · tap outside to lock' : 'depth view · move to turn') : `locked · ${TOUCH ? 'tap' : 'hover'} to lift into 3D`;
     if (readout.current && label !== s.label) {
       s.label = label;
       readout.current.textContent = label;

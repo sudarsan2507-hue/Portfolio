@@ -326,3 +326,30 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .crisp .cx-card > p.cx-fine { margin-top: 8px; font-size: 12.5px; color: var(--faint); }
 .crisp .cx-links { display: flex; flex-wrap: wrap; gap: 4px 18px; }
 @media (prefers-reduced-motion: reduce) { .crisp .cx-pipe li { opacity: 1; transform: none; } .crisp .cx-h::after { transform: none; } }
+
+/* ================= phones ================= */
+.crisp .cx-portrait figcaption { left: 6%; transform: none; }
+@media (max-width: 959px) {
+  .crisp .cx-profile { padding-block: 40px 0; }
+  .crisp .cx-portrait { margin: 0 0 22px -12px; }
+  .crisp .cx-back-link { margin-top: 18px; }
+}
+@media (max-width: 640px) {
+  .crisp .cx-mono { letter-spacing: .04em; }
+  .crisp .cx-k { letter-spacing: .1em; font-size: 10px; }
+  .crisp .cx-card { padding: 18px; border-radius: 16px; }
+  .crisp .cx-card h3 { font-size: 24px; }
+  .crisp .cx-h { margin: 44px 0 14px; }
+  .crisp .cx-win { padding: 14px; }
+  .crisp .cx-win b { font-size: 24px; }
+  .crisp .cx-nums { gap: 10px; }
+  .crisp .cx-nums:not(.two) { grid-template-columns: 1fr 1fr; }
+  .crisp .cx-text-link { padding-block: 6px; }
+  /* the floating shortcut shrinks to a small pill so it never covers what you are reading */
+  .crisp .cx-portal { gap: 8px; padding: 6px 12px 6px 6px; }
+  .crisp .cx-portal .cx-portal-rings.small { width: 28px; height: 28px; }
+  .crisp .cx-portal b { font-size: 12.5px; }
+  .crisp .cx-portal span:last-child { font-size: 0; }
+  .crisp .cx-portal span:last-child b { font-size: 12.5px; }
+  .crisp .cx-foot { padding-bottom: 64px; }
+}

@@ -113,7 +113,7 @@ function Visibility({ wrap }: { wrap: React.RefObject<HTMLDivElement | null> }) 
 export default function World({ onStats, reduced }: { onStats: (s: SearchStats) => void; reduced: boolean }) {
   const wrap = useRef<HTMLDivElement>(null);
   return (
-    <div ref={wrap} className="pointer-events-none fixed inset-0 z-0" aria-hidden>
+    <div ref={wrap} className="world-bg pointer-events-none fixed inset-0 z-0" aria-hidden>
       <Canvas camera={{ position: [0, 0, 10], fov: 50, near: 0.1, far: 400 }} dpr={[1, 1.6]} gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}>
         <color attach="background" args={['#06070d']} />
         <fog attach="fog" args={['#06070d', 15, 33]} />

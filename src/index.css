@@ -493,3 +493,23 @@ section[id] { scroll-margin-top: 72px; }
 @media (prefers-reduced-motion: reduce) { .scan-img { -webkit-mask-image: none; mask-image: none; filter: none; animation: none !important; } }
 
 .ds-note { margin-top: 14px; font-size: 14px; }
+
+/* ================= phones ================= */
+@media (max-width: 899px) {
+  /* the particle scenes sit behind text on a phone, so they are dimmed */
+  .gate canvas { opacity: .42; }
+  .world-bg { background: #06070d; }
+  .world-bg canvas { opacity: .5; }
+  .gate-name { font-size: clamp(2.3rem, 11.5vw, 4rem); }
+  .gate-tag, .gc-body, .gate-choice p { text-shadow: 0 1px 10px #05060c, 0 0 3px #05060c; }
+}
+@media (max-width: 560px) {
+  .spec-head { flex-wrap: wrap; gap: 4px 16px; }
+  .spec-metric { text-align: left; font-size: 20px; }
+  .spec-metric small { display: inline; max-width: none; margin-left: 8px; }
+  .ds-metrics { grid-template-columns: 1fr 1fr; }
+  .ds-metrics b { font-size: 19px; }
+  .ds-pipe li { font-size: 10.5px; padding: 4px 8px; }
+  .actions { gap: 8px; }
+  .dportrait figcaption { font-size: 9.5px; letter-spacing: .12em; }
+}
